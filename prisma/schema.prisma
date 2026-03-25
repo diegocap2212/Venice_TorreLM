@@ -37,3 +37,23 @@ model Vaga {
   
   updated_at       DateTime  @updatedAt
 }
+model Colaborador {
+  id                String   @id @default(uuid())
+  nome              String
+  cargo             String
+  status            String   @default("Ativo")
+  data_admissao     DateTime
+  data_nascimento   DateTime
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+model Material {
+  id                String   @id @default(uuid())
+  titulo            String
+  descricao         String?
+  url               String
+  tipo              String   @default("Apresentação")
+  data_upload       DateTime @default(now())
+  created_at        DateTime @default(now())
+}

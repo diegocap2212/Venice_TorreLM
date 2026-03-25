@@ -9,11 +9,9 @@ const globalForPrisma = globalThis as unknown as {
 const db = new SQLite("prisma/dev.db");
 const adapter = new PrismaBetterSqlite3({ url: "file:./prisma/dev.db" });
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+export const prisma = new PrismaClient({
     adapter,
-    log: ["query"],
+    log: ["query", "info", "warn", "error"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
