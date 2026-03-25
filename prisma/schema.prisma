@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  role          String    @default("BP")
+  vagas_criadas Vaga[]    @relation("CriadorVaga")
+  vagas_atuais  Vaga[]    @relation("ResponsavelVaga")
+  created_at    DateTime  @default(now())
+}
+
+model Vaga {
+  id               String    @id @default(uuid())
+  titulo           String
+  perfil_tipo      String
+  senioridade      String
+  aba_atual        String    @default("RECRUTAMENTO")
+  etapa_atual      String    @default("REQUISICAO")
+  urgencia         String    @default("NORMAL")
+  squad_destino    String
+  data_abertura    DateTime  @default(now())
+  data_etapa_atual DateTime  @default(now())
+  sla_dias         Int       @default(3)
+  briefing_handoff String?   
+  
+  responsavel_id   String
+  responsavel      User      @relation("ResponsavelVaga", fields: [responsavel_id], references: [id])
+  criado_por_id    String
+  criado_por       User      @relation("CriadorVaga", fields: [criado_por_id], references: [id])
+  
+  updated_at       DateTime  @updatedAt
+}
