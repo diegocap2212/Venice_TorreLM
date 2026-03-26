@@ -214,11 +214,19 @@ export async function seedColaboradores() {
   ];
 
   for (const item of data) {
-    // Note: In production, we should match by a unique field like email
-    await prisma.colaborador.upsert({
-      where: { id: item.nome }, // Placeholder: ideally we'd use a real ID or unique email
-      update: { ...item },
-      create: { ...item },
+    const existing = await prisma.colaborador.findFirst({
+      where: { nome: item.nome }
     });
+
+    if (existing) {
+      await prisma.colaborador.update({
+        where: { id: existing.id },
+        data: item,
+      });
+    } else {
+      await prisma.colaborador.create({
+        data: item,
+      });
+    }
   }
 }

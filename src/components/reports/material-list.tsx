@@ -74,12 +74,13 @@ export function MaterialList({ initialData }: MaterialListProps) {
 
     try {
       const url = await toDataURL(file);
-      const newMaterial = await createMaterial({
-        titulo: file.name,
-        descricao: `Upload local via PC (${file.type || "sem tipo"})`,
-        url,
-        tipo: getUploadType(file),
-      });
+      const data = new FormData();
+      data.append("titulo", file.name);
+      data.append("descricao", `Upload local via PC (${file.type || "sem tipo"})`);
+      data.append("url", url);
+      data.append("tipo", getUploadType(file));
+
+      const newMaterial = await createMaterial(data);
 
       setMaterials((prev) => [newMaterial as Material, ...prev]);
       router.refresh();
