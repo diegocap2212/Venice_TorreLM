@@ -38,14 +38,19 @@ model Vaga {
   updated_at       DateTime  @updatedAt
 }
 model Colaborador {
-  id                String   @id @default(uuid())
-  nome              String
-  cargo             String
-  status            String   @default("Ativo")
-  data_admissao     DateTime
-  data_nascimento   DateTime
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
+  id                   String    @id @default(uuid())
+  nome                 String
+  cargo                String
+  status               String    @default("Ativo")
+  data_admissao        DateTime
+  data_nascimento      DateTime
+  torre                String?
+  squad                String?
+  email                String?
+  data_desligamento    DateTime?
+  informacoes_internas String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
 }
 
 model Material {

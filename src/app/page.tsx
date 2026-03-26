@@ -3,13 +3,7 @@ import { CreateVagaDialog } from "@/components/kanban/create-vaga-dialog";
 import { WebView } from "@/components/shared/webview";
 import { ColaboradoresTable } from "@/components/colaboradores/colaboradores-table";
 import { MaterialList } from "@/components/reports/material-list";
-import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import SQLite from "better-sqlite3";
-
-const db = new SQLite("prisma/dev.db");
-const adapter = new PrismaBetterSqlite3({ url: "file:./prisma/dev.db" });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "@/lib/prisma";
 
 export default async function KanbanPage({ 
   searchParams 

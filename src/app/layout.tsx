@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -22,9 +23,13 @@ export default function RootLayout({
       <body className={`${inter.className} bg-slate-50 antialiased`}>
         <RoleProvider>
           <div className="flex h-screen overflow-hidden">
-            <Sidebar />
+            <Suspense fallback={<div className="w-72 bg-slate-100 animate-pulse" />}>
+              <Sidebar />
+            </Suspense>
             <div className="flex flex-col flex-1 overflow-hidden">
-              <Topbar />
+              <Suspense fallback={<div className="h-20 bg-slate-50 animate-pulse" />}>
+                <Topbar />
+              </Suspense>
               <main className="flex-1 overflow-auto bg-slate-50/50">
                 {children}
               </main>

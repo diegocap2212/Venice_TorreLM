@@ -23,15 +23,13 @@ export function Sidebar() {
   const setView = (view: string) => {
     const params = new URLSearchParams(searchParams);
     params.set("view", view);
+    if (view === "pipeline") {
+      params.set("tab", "recrutamento");
+    }
     router.push(`/?${params.toString()}`);
   };
 
-  const setTab = (tab: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("tab", tab);
-    params.set("view", "pipeline"); // Always switch back to pipeline when changing tabs
-    router.push(`/?${params.toString()}`);
-  };
+
 
 
   return (
@@ -72,36 +70,8 @@ export function Sidebar() {
                 <div className={`p-1.5 rounded-lg transition-colors ${currentView === "pipeline" ? "bg-primary text-white" : "bg-slate-200/50 text-slate-400"}`}>
                   <LayoutDashboard className="w-4 h-4" />
                 </div>
-                Portal Kanban
+                Pipeline Contratações
               </button>
-              
-                <div className="mt-2 pl-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest bg-primary/5 text-primary border border-primary/20 outline-none transition-all hover:bg-primary/10 shadow-sm shadow-primary/5">
-                      <span className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full shadow-sm ${currentTab === "onboarding" ? "bg-orange-500 shadow-orange-500/40 animate-pulse" : "bg-blue-600 shadow-blue-600/40 animate-pulse"}`} />
-                        {currentTab === "onboarding" ? "2 - Onboarding" : "1 - R & S"}
-                      </span>
-                      <ChevronDown className="w-3 h-3 opacity-60" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 bg-white border-slate-200 text-slate-700 shadow-xl rounded-xl p-1 animate-in slide-in-from-top-2 duration-200" align="start">
-                      <DropdownMenuItem 
-                        onClick={() => setTab("recrutamento")}
-                        className={`text-[10px] font-black uppercase tracking-widest py-3 px-4 rounded-lg cursor-pointer flex items-center gap-3 transition-colors ${currentTab !== "onboarding" ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}
-                      >
-                        <div className={`w-2 h-2 rounded-full ${currentTab !== "onboarding" ? 'bg-blue-600 shadow-sm shadow-blue-600/50' : 'bg-slate-300'}`} />
-                        1 - Recrutamento & Seleção
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => setTab("onboarding")}
-                        className={`text-[10px] font-black uppercase tracking-widest py-3 px-4 rounded-lg cursor-pointer flex items-center gap-3 transition-colors ${currentTab === "onboarding" ? 'bg-orange-50 text-orange-700' : 'text-slate-500 hover:bg-slate-50'}`}
-                      >
-                        <div className={`w-2 h-2 rounded-full ${currentTab === "onboarding" ? 'bg-orange-600 shadow-sm shadow-orange-600/50' : 'bg-slate-300'}`} />
-                        2 - Onboarding
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
 
               <button
                 onClick={() => setView("colaboradores")}

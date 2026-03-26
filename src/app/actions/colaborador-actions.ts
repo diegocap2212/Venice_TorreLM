@@ -15,6 +15,11 @@ export async function createColaborador(data: {
   status: string;
   data_admissao: Date;
   data_nascimento: Date;
+  torre?: string;
+  squad?: string;
+  email?: string;
+  data_desligamento?: Date;
+  informacoes_internas?: string;
 }) {
   const colaborador = await prisma.colaborador.create({
     data,
@@ -31,6 +36,11 @@ export async function updateColaborador(
     status: string;
     data_admissao: Date;
     data_nascimento: Date;
+    torre: string;
+    squad: string;
+    email: string;
+    data_desligamento: Date;
+    informacoes_internas: string;
   }>
 ) {
   const colaborador = await prisma.colaborador.update({
@@ -51,23 +61,63 @@ export async function deleteColaborador(id: string) {
 // Seed function for the initial image data
 export async function seedColaboradores() {
   const data = [
-    { nome: "Abraão Melo Vilela", cargo: "Analista de QA", status: "Ativo", data_admissao: new Date("2024-04-07"), data_nascimento: new Date("1995-05-25") },
-    { nome: "Aguinaldo Aparecido de Brito Junior", cargo: "Analista de QA", status: "Ativo", data_admissao: new Date("2026-01-05"), data_nascimento: new Date("1994-07-14") },
-    { nome: "Gabriel Marquez Volponi", cargo: "Analista de QA", status: "Ativo", data_admissao: new Date("2024-10-30"), data_nascimento: new Date("2001-05-11") },
-    { nome: "Bruna Tatiane Bonecher Steffen", cargo: "Product Owner", status: "Ativo", data_admissao: new Date("2025-01-06"), data_nascimento: new Date("1986-02-02") },
-    { nome: "Caio Fábio Duarte Ferreira", cargo: "Desenvolvedor Front-End", status: "Ativo", data_admissao: new Date("2023-03-06"), data_nascimento: new Date("1994-06-03") },
-    { nome: "Carlos Eduardo Rodrigues Nogueira", cargo: "Product Owner", status: "Ativo", data_admissao: new Date("2025-10-29"), data_nascimento: new Date("1992-01-05") },
-    { nome: "Carlos Pedrinho Weiss Filho", cargo: "Product Owner", status: "Ativo", data_admissao: new Date("2024-05-27"), data_nascimento: new Date("1980-04-16") },
-    { nome: "Charles Janio Olavo Dos Santos", cargo: "Desenvolvedor Back-End", status: "Ativo", data_admissao: new Date("2023-07-24"), data_nascimento: new Date("1983-12-01") },
-    { nome: "Christiane Zavatta", cargo: "Analista de Processos", status: "Ativo", data_admissao: new Date("2025-04-28"), data_nascimento: new Date("1983-01-21") },
-    { nome: "Cíntia Ramos de Moura", cargo: "Product Owner", status: "Ativo", data_admissao: new Date("2025-12-01"), data_nascimento: new Date("1985-10-11") },
+    {
+      nome: "Abraão Melo Vilela",
+      cargo: "Analista de QA",
+      status: "Ativo",
+      data_admissao: new Date("2024-04-07"),
+      data_nascimento: new Date("1995-05-25"),
+      torre: "Backoffice",
+      squad: "Faturamento - Squad Tera",
+      email: "ext.abraao.vilela@lmmobilidade.com.br"
+    },
+    {
+      nome: "Aguinaldo Aparecido de Brito Junior",
+      cargo: "Analista de QA",
+      status: "Ativo",
+      data_admissao: new Date("2026-01-05"),
+      data_nascimento: new Date("1994-07-14"),
+      torre: "Vendas assistidas e seminovos",
+      squad: "Canal Indireto",
+      email: "ext.aguinaldo.junior@lmmobilidade.com.br"
+    },
+    {
+      nome: "Gabriel Marquez Volponi",
+      cargo: "Analista de QA",
+      status: "Ativo",
+      data_admissao: new Date("2024-10-30"),
+      data_nascimento: new Date("2001-05-11"),
+      torre: "Vendas assistidas e seminovos",
+      squad: "Pricing",
+      email: "ext.gabriel.volponi@lmmobilidade.com.br"
+    },
+    {
+      nome: "Bruna Tatiane Bonnecher Steffen",
+      cargo: "Product Owner",
+      status: "Ativo",
+      data_admissao: new Date("2025-01-06"),
+      data_nascimento: new Date("1986-02-02"),
+      torre: "Backoffice",
+      squad: "Contábil/Fiscal",
+      email: "ext.bruna.steffen@lmmobilidade.com.br"
+    },
+    {
+      nome: "Caio Fábio Duarte Ferreira",
+      cargo: "Desenvolvedor Front-End",
+      status: "Ativo",
+      data_admissao: new Date("2023-03-06"),
+      data_nascimento: new Date("1994-06-03"),
+      torre: "Autoatendimento e ativação",
+      squad: "Portal do cliente",
+      email: "venice.caio@lmmobilidade.com.br"
+    }
   ];
 
   for (const item of data) {
     await prisma.colaborador.upsert({
-      where: { id: item.nome }, // Using name as a simple unique check for seed
-      update: {},
-      create: { ...item, id: undefined as any },
+      where: { id: item.nome }, // Using name as a simple unique seed check (ideally use ID)
+      update: { ...item },
+      create: { ...item },
     });
   }
 }

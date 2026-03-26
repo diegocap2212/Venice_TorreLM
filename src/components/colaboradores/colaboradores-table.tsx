@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Table, 
   TableBody, 
@@ -16,9 +16,22 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, UserPlus, Edit2, Trash2, Calendar, Briefcase, User } from "lucide-react";
+import { 
+  MoreHorizontal, 
+  UserPlus, 
+  Edit2, 
+  Trash2, 
+  Calendar, 
+  Briefcase, 
+  User,
+  Building2,
+  Users as UsersIcon,
+  Mail
+} from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ColaboradorDrawer } from "./colaborador-drawer";
+import { deleteColaborador } from "@/app/actions/colaborador-actions";
 
 interface Colaborador {
   id: string;
@@ -27,6 +40,10 @@ interface Colaborador {
   status: string;
   data_admissao: Date | string;
   data_nascimento: Date | string;
+  torre?: string;
+  squad?: string;
+  email?: string;
+  informacoes_internas?: string;
 }
 
 interface ColaboradoresTableProps {
@@ -35,6 +52,24 @@ interface ColaboradoresTableProps {
 
 export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
   const [data, setData] = useState(initialData);
+  const [selectedColab, setSelectedColab] = useState<Colaborador | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  const handleEdit = (colab: Colaborador) => {
+    setSelectedColab(colab);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Tem certeza que deseja remover este colaborador?")) {
+      await deleteColaborador(id);
+      setData(data.filter(c => c.id !== id));
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -53,8 +88,9 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
           <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent border-slate-200">
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Colaborador</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Cargo</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Admissão</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Cargo / Torre</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Squad</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Email</TableHead>
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6 text-center">Status</TableHead>
               <TableHead className="w-[80px] py-4 px-6"></TableHead>
             </TableRow>
@@ -69,20 +105,35 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-800">{colab.nome}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">Nasc: {format(new Date(colab.data_nascimento), "dd/MM/yyyy")}</span>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <Calendar className="w-3 h-3 text-slate-300" />
+                        <span className="text-[10px] text-slate-400 font-medium">Adm: {format(new Date(colab.data_admissao), "dd/MM/yyyy")}</span>
+                      </div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-4 px-6">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5 text-slate-700">
+                      <Briefcase className="w-3 h-3 text-emerald-500" />
+                      <span className="text-xs font-bold">{colab.cargo}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                      <Building2 className="w-3 h-3" />
+                      <span className="text-[10px] font-medium">{colab.torre || "-"}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-4 px-6">
                   <div className="flex items-center gap-2 text-slate-600">
-                    <Briefcase className="w-3.5 h-3.5 text-slate-300" />
-                    <span className="text-xs font-bold">{colab.cargo}</span>
+                    <UsersIcon className="w-3.5 h-3.5 text-slate-300" />
+                    <span className="text-xs font-bold">{colab.squad || "-"}</span>
                   </div>
                 </TableCell>
                 <TableCell className="py-4 px-6">
                   <div className="flex items-center gap-2 text-slate-600">
-                    <Calendar className="w-3.5 h-3.5 text-slate-300" />
-                    <span className="text-xs font-bold">{format(new Date(colab.data_admissao), "dd/MM/yyyy")}</span>
+                    <Mail className="w-3.5 h-3.5 text-slate-300" />
+                    <span className="text-xs font-medium truncate max-w-[150px]">{colab.email || "-"}</span>
                   </div>
                 </TableCell>
                 <TableCell className="py-4 px-6 text-center">
@@ -101,11 +152,17 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                       <MoreHorizontal className="w-4 h-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40 bg-white border-slate-200 rounded-xl p-1 shadow-xl">
-                      <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-slate-600 hover:bg-slate-50">
+                      <DropdownMenuItem 
+                        onClick={() => handleEdit(colab)}
+                        className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-slate-600 hover:bg-slate-50"
+                      >
                         <Edit2 className="w-3.5 h-3.5" />
                         Editar
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-red-600 hover:bg-red-50">
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(colab.id)}
+                        className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-red-600 hover:bg-red-50"
+                      >
                         <Trash2 className="w-3.5 h-3.5" />
                         Remover
                       </DropdownMenuItem>
@@ -117,6 +174,15 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      <ColaboradorDrawer 
+        colaborador={selectedColab}
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedColab(null);
+        }}
+      />
     </div>
   );
 }

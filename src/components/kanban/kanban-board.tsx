@@ -143,19 +143,45 @@ export function KanbanBoard({ initialVagas, initialTab = "RECRUTAMENTO", hideHea
             <div className="flex items-center gap-2 mb-0.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/40 animate-pulse" />
               <h2 className="text-sm font-black text-slate-800 uppercase tracking-tighter">
-                {aba === "RECRUTAMENTO" ? "1 - Pipeline de Contratações" : "2 - Onboarding Portal"}
+                Pipeline de Contratações
               </h2>
             </div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-3.5">
-              {aba === "RECRUTAMENTO" ? "Gestão de Talentos Torre LM" : "Boas-vindas e Integração Operacional"}
+              Gestão de Talentos Torre LM
             </p>
           </div>
           
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 backdrop-blur-sm rounded-xl border border-emerald-500/10 shadow-sm">
-            <div className={`w-1.5 h-1.5 rounded-full ${aba === "ONBOARDING" ? "bg-orange-500 shadow-orange-500/40" : "bg-blue-600 shadow-blue-600/40"}`} />
-            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-              {aba === "ONBOARDING" ? "Pipeline 02" : "Pipeline 01"}
-            </span>
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(window.location.search);
+                params.set("tab", "recrutamento");
+                window.history.replaceState(null, "", `?${params.toString()}`);
+                setAba("RECRUTAMENTO");
+              }}
+              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                aba === "RECRUTAMENTO" 
+                  ? "bg-white text-blue-600 shadow-sm shadow-blue-500/10 border border-slate-200" 
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              1 - R & S
+            </button>
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(window.location.search);
+                params.set("tab", "onboarding");
+                window.history.replaceState(null, "", `?${params.toString()}`);
+                setAba("ONBOARDING");
+              }}
+              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                aba === "ONBOARDING" 
+                  ? "bg-white text-orange-600 shadow-sm shadow-orange-500/10 border border-slate-200" 
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              2 - Onboarding
+            </button>
           </div>
         </div>
       )}
