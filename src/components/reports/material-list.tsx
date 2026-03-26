@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
 import { 
   FileText, 
   Download, 
@@ -12,6 +13,7 @@ import {
   FileArchive
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createMaterial } from "@/app/actions/material-actions";
 import { format } from "date-fns";
 
 interface Material {
@@ -29,6 +31,58 @@ interface MaterialListProps {
 
 export function MaterialList({ initialData }: MaterialListProps) {
   const [materials, setMaterials] = useState(initialData);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  const getUploadType = (file: File) => {
+    if (file.type.includes("video")) return "vídeo";
+    if (file.type.includes("pdf") || file.type.includes("officedocument")) return "anexo";
+    if (file.type.includes("presentation") || file.name.match(/\.(pptx?|pdf)$/i)) return "apresentação";
+    return "documento";
+  };
+
+  const toDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") resolve(reader.result);
+        else reject(new Error("Não foi possível ler arquivo"));
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    try {
+      const url = await toDataURL(file);
+      const newMaterial = await createMaterial({
+        titulo: file.name,
+        descricao: `Upload local via PC (${file.type || "sem tipo"})`,
+        url,
+        tipo: getUploadType(file),
+      });
+
+      setMaterials((prev) => [newMaterial as Material, ...prev]);
+      router.refresh();
+    } catch (error) {
+      console.error("Falha ao enviar material:", error);
+      alert("Erro ao subir arquivo. Tente novamente.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const openFilePicker = () => {
+    fileInputRef.current?.click();
+  };
 
   const getIcon = (tipo: string) => {
     switch (tipo.toLowerCase()) {
@@ -43,10 +97,25 @@ export function MaterialList({ initialData }: MaterialListProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Repositório Venice Materials</h3>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Subir Material
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="*/*"
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+
+          <Button
+            onClick={openFilePicker}
+            disabled={isUploading}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            {isUploading ? "Enviando..." : "Enviar do PC"}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

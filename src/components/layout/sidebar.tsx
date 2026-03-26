@@ -57,7 +57,7 @@ export function Sidebar() {
         {/* Navigation Group */}
         <section className="space-y-4">
           <div>
-            <p className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pipeline Contratações</p>
+            <div className="mb-3 px-3 text-[10px] font-black uppercase tracking-widest text-slate-600">Navegação Venice</div>
             <div className="space-y-1.5">
               <button
                 onClick={() => setView("pipeline")}
@@ -90,7 +90,7 @@ export function Sidebar() {
           </div>
 
           <div>
-            <p className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Conexões Venice</p>
+            <div className="mb-3 px-3 text-[10px] font-black uppercase tracking-widest text-slate-600">Conexões e Recursos</div>
             <div className="space-y-1.5">
               <button
                 onClick={() => setView("ways-of-working")}

@@ -39,19 +39,76 @@ export default async function KanbanPage({
     materials = [];
   }
 
+  const sampleColaboradores = [
+    {
+      id: "sample-1",
+      nome: "Ana Souza",
+      cargo: "Analista de RH",
+      status: "Ativo",
+      data_admissao: new Date().toISOString(),
+      data_nascimento: new Date(1990, 5, 10).toISOString(),
+      torre: "Venice",
+      squad: "Growth",
+      email: "ana.souza@example.com",
+      informacoes_internas: "Foco em recrutamento técnico",
+    },
+    {
+      id: "sample-2",
+      nome: "Bruno Lima",
+      cargo: "Talent Partner",
+      status: "Ativo",
+      data_admissao: new Date().toISOString(),
+      data_nascimento: new Date(1988, 10, 3).toISOString(),
+      torre: "Venice",
+      squad: "TA",
+      email: "bruno.lima@example.com",
+      informacoes_internas: "Atende squads de produto",
+    },
+  ];
+
+  if (colaboradores.length === 0) {
+    colaboradores = sampleColaboradores;
+  }
+
+  const recrutamentoStages = [
+    "REQUISICAO",
+    "PREPARACAO",
+    "TRIAGEM",
+    "SHORTLIST",
+    "ENTREVISTA_CLIENTE",
+    "APROVACAO_PROPOSTA",
+  ];
+
+  const onboardingStages = [
+    "CONTRATACAO",
+    "ONB_ADMINISTRATIVO",
+    "ONB_OPERACIONAL",
+    "SEMANA_1",
+    "MES_1_ALEM",
+  ];
+
+  const rsVagas = vagas.filter((v) => recrutamentoStages.includes(v.etapa_atual));
+  const onboardingVagas = vagas.filter((v) => onboardingStages.includes(v.etapa_atual));
+
   return (
     <div className="h-full flex flex-col bg-white">
       {view === "pipeline" ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 px-6 pt-6 relative">
-            <div className="absolute top-6 right-8 z-10">
-              <CreateVagaDialog />
-            </div>
-            <KanbanBoard 
-              initialVagas={vagas} 
-              initialTab={tab === "onboarding" ? "ONBOARDING" : "RECRUTAMENTO"} 
-              hideHeader={true}
-            />
+        <div className="flex-1 p-6 overflow-auto space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-sm font-black uppercase tracking-wider text-slate-600">Pipeline de Contratações</h2>
+            <CreateVagaDialog />
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">RH / Talent</h3>
+              <KanbanBoard initialVagas={rsVagas} initialTab="RECRUTAMENTO" hideHeader={true} />
+            </section>
+
+            <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Onboarding</h3>
+              <KanbanBoard initialVagas={onboardingVagas} initialTab="ONBOARDING" hideHeader={true} />
+            </section>
           </div>
         </div>
       ) : view === "colaboradores" ? (
