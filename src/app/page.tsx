@@ -104,24 +104,26 @@ export default async function KanbanPage({
                 <CreateVagaDialog />
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                {/* RH / Talent Column */}
-                <section className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-2 h-8 bg-emerald-500 rounded-full" />
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">1 - RH / Talent Recruiting</h3>
-                  </div>
-                  <KanbanBoard initialVagas={rsVagas} initialTab="RECRUTAMENTO" hideHeader={true} />
-                </section>
-
-                {/* Onboarding Column */}
-                <section className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-2 h-8 bg-orange-500 rounded-full" />
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">2 - Onboarding Experience</h3>
-                  </div>
-                  <KanbanBoard initialVagas={onboardingVagas} initialTab="ONBOARDING" hideHeader={true} />
-                </section>
+              <div className="w-full animate-in fade-in slide-in-from-right-4 duration-500">
+                {tab === "onboarding" ? (
+                  /* Onboarding Column */
+                  <section className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-2 h-8 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.3)]" />
+                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Onboarding Experience</h3>
+                    </div>
+                    <KanbanBoard initialVagas={onboardingVagas} initialTab="ONBOARDING" hideHeader={true} />
+                  </section>
+                ) : (
+                  /* RH / Talent Column */
+                  <section className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-2 h-8 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">RH / Talent Recruiting</h3>
+                    </div>
+                    <KanbanBoard initialVagas={rsVagas} initialTab="RECRUTAMENTO" hideHeader={true} />
+                  </section>
+                )}
               </div>
             </div>
           </div>

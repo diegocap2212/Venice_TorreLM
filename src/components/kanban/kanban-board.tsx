@@ -32,7 +32,6 @@ interface KanbanBoardProps {
 
 export function KanbanBoard({ initialVagas, initialTab = "RECRUTAMENTO", hideHeader = false }: KanbanBoardProps) {
   const [vagas, setVagas] = useState(initialVagas);
-  const [aba, setAba] = useState<"RECRUTAMENTO" | "ONBOARDING">(initialTab);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedVaga, setSelectedVaga] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -42,11 +41,6 @@ export function KanbanBoard({ initialVagas, initialTab = "RECRUTAMENTO", hideHea
   useEffect(() => {
     setVagas(initialVagas);
   }, [initialVagas]);
-
-  // Sync state with prop if it changes externally (e.g. sidebar navigation)
-  useEffect(() => {
-    setAba(initialTab);
-  }, [initialTab]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -122,7 +116,7 @@ export function KanbanBoard({ initialVagas, initialTab = "RECRUTAMENTO", hideHea
     { id: "MES_1_ALEM", title: "Mês 1 e Além", color: "bg-teal-600" },
   ];
 
-  const colunasAtuais = aba === "RECRUTAMENTO" ? colunasRS : colunasOnboarding;
+  const colunasAtuais = initialTab === "RECRUTAMENTO" ? colunasRS : colunasOnboarding;
 
   const dropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -141,47 +135,14 @@ export function KanbanBoard({ initialVagas, initialTab = "RECRUTAMENTO", hideHea
         <div className="h-20 px-8 border-b border-slate-200 bg-emerald-500/[0.02] flex items-center justify-between shrink-0 mb-8 -mx-6 -mt-6">
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/40 animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <h2 className="text-sm font-black text-slate-800 uppercase tracking-tighter">
-                Pipeline de Contratações
+                {initialTab === "RECRUTAMENTO" ? "Pipeline de Recrutamento" : "Pipeline de Onboarding"}
               </h2>
             </div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-3.5">
               Gestão de Talentos Torre LM
             </p>
-          </div>
-          
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
-            <button
-              onClick={() => {
-                const params = new URLSearchParams(window.location.search);
-                params.set("tab", "recrutamento");
-                window.history.replaceState(null, "", `?${params.toString()}`);
-                setAba("RECRUTAMENTO");
-              }}
-              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                aba === "RECRUTAMENTO" 
-                  ? "bg-white text-blue-600 shadow-sm shadow-blue-500/10 border border-slate-200" 
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              1 - R & S
-            </button>
-            <button
-              onClick={() => {
-                const params = new URLSearchParams(window.location.search);
-                params.set("tab", "onboarding");
-                window.history.replaceState(null, "", `?${params.toString()}`);
-                setAba("ONBOARDING");
-              }}
-              className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                aba === "ONBOARDING" 
-                  ? "bg-white text-orange-600 shadow-sm shadow-orange-500/10 border border-slate-200" 
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              2 - Onboarding
-            </button>
           </div>
         </div>
       )}

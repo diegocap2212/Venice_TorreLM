@@ -17,7 +17,7 @@ export function Topbar() {
     if (currentView === "cone-locavia") return "VENICE | CONE LOCAVIA";
     if (currentView === "colaboradores") return "VENICE | COLABORADORES";
     if (currentView === "reports") return "VENICE | REPORTS E MATERIAIS";
-    return "VENICE | TORRE LM";
+    return currentTab === "onboarding" ? "VENICE | ONBOARDING" : "VENICE | RECRUTAMENTO";
   };
 
   const getSubtitle = () => {
@@ -25,7 +25,7 @@ export function Topbar() {
     if (currentView === "cone-locavia") return "Dashboard de Performance e Métricas";
     if (currentView === "colaboradores") return "Gestão de Pessoas e Times";
     if (currentView === "reports") return "Materiais, Atas e Documentos";
-    return currentTab === "onboarding" ? "Pipeline de Integração (Onboarding)" : "Pipeline de Recrutamento (R&S)";
+    return currentTab === "onboarding" ? "Pipeline de Integração (Experiência Onboarding)" : "Pipeline de Recrutamento (Seleção e R&S)";
   };
 
   return (
