@@ -11,20 +11,33 @@ export default async function KanbanPage({
   searchParams: Promise<{ tab?: string; view?: string }> 
 }) {
   const { tab, view = "pipeline" } = await searchParams;
-  
-  // Fetch real data from SQLite with safety checks
-  const vagas = await (prisma as any).vaga?.findMany({
-    include: { responsavel: true },
-    orderBy: { data_etapa_atual: "desc" },
-  }) || [];
 
-  const colaboradores = await (prisma as any).colaborador?.findMany({
-    orderBy: { nome: "asc" },
-  }) || [];
+  let vagas: any[] = [];
+  let colaboradores: any[] = [];
+  let materials: any[] = [];
 
-  const materials = await (prisma as any).material?.findMany({
-    orderBy: { data_upload: "desc" },
-  }) || [];
+  try {
+    vagas =
+      (await prisma.vaga.findMany({
+        include: { responsavel: true },
+        orderBy: { data_etapa_atual: "desc" },
+      })) || [];
+
+    colaboradores =
+      (await prisma.colaborador.findMany({
+        orderBy: { nome: "asc" },
+      })) || [];
+
+    materials =
+      (await prisma.material.findMany({
+        orderBy: { data_upload: "desc" },
+      })) || [];
+  } catch (err) {
+    console.error("[page] Prisma query failed, using empty data", err);
+    vagas = [];
+    colaboradores = [];
+    materials = [];
+  }
 
   return (
     <div className="h-full flex flex-col bg-white">
