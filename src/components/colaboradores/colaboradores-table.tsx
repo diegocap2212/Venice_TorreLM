@@ -102,8 +102,15 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((colab) => (
-              <TableRow key={colab.id} className="border-slate-100 hover:bg-slate-50/30 transition-colors group">
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell className="py-12 px-6 text-center text-sm text-slate-400" colSpan={6}>
+                  Nenhum colaborador encontrado. Use o botão "Novo Colaborador" para começar.
+                </TableCell>
+              </TableRow>
+            ) : (
+              data.map((colab) => (
+                <TableRow key={colab.id} className="border-slate-100 hover:bg-slate-50/30 transition-colors group">
                 <TableCell className="py-4 px-6 text-slate-700">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shadow-sm border border-emerald-100 group-hover:scale-105 transition-transform">
@@ -185,7 +192,8 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            ))
+          )}
           </TableBody>
         </Table>
       </div>

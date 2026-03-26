@@ -62,7 +62,7 @@ export function Sidebar() {
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pt-6 pb-24 px-4 space-y-1">
         <div className="px-4 pb-2 mb-2">
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Core Engine</span>
+          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Navegação Venice</span>
         </div>
 
         {/* Pipeline & Onboarding Group */}
@@ -112,9 +112,9 @@ export function Sidebar() {
           )}
         </div>
 
-        {/* Other Sections */}
+        {/* Governance Sections */}
         <div className="px-4 py-4 mb-2">
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Governance</span>
+          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Conexões e Recursos</span>
         </div>
 
         <button
