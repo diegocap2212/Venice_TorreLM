@@ -77,7 +77,13 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
         <div className="relative w-72">
           {/* Search placeholder */}
         </div>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+        <Button 
+          onClick={() => {
+            setSelectedColab(null);
+            setIsDrawerOpen(true);
+          }}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+        >
           <UserPlus className="w-4 h-4" />
           Novo Colaborador
         </Button>
@@ -137,12 +143,21 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="py-4 px-6 text-center">
-                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 shadow-sm ${
+                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 shadow-sm border transition-all duration-300 ${
                     colab.status === "Ativo" 
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100" 
-                      : "bg-slate-100 text-slate-500 border border-slate-200"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+                      : colab.status === "Férias"
+                      ? "bg-sky-50 text-sky-700 border-sky-100"
+                      : colab.status === "Desligado"
+                      ? "bg-rose-50 text-rose-700 border-rose-100"
+                      : "bg-slate-50 text-slate-500 border-slate-200"
                   }`}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${colab.status === "Ativo" ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${
+                      colab.status === "Ativo" ? "bg-emerald-500 animate-pulse" : 
+                      colab.status === "Férias" ? "bg-sky-500" :
+                      colab.status === "Desligado" ? "bg-rose-500" :
+                      "bg-slate-400"
+                    }`} />
                     {colab.status}
                   </span>
                 </TableCell>

@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { MaterialDrawer } from "./material-drawer";
+import { deleteMaterial } from "@/app/actions/material-actions";
 
 interface Material {
   id: string;
@@ -29,6 +31,15 @@ interface MaterialListProps {
 
 export function MaterialList({ initialData }: MaterialListProps) {
   const [materials, setMaterials] = useState(initialData);
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const handleDelete = async (id: string, titulo: string) => {
+    if (confirm(`Excluir material "${titulo}"?`)) {
+      setMaterials(materials.filter(m => m.id !== id));
+      await deleteMaterial(id);
+    }
+  };
 
   const getIcon = (tipo: string) => {
     switch (tipo.toLowerCase()) {
@@ -43,7 +54,13 @@ export function MaterialList({ initialData }: MaterialListProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Repositório Venice Materials</h3>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+        <Button 
+          onClick={() => {
+            setSelectedMaterial(null);
+            setIsDrawerOpen(true);
+          }}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+        >
           <Plus className="w-4 h-4" />
           Subir Material
         </Button>
@@ -62,7 +79,12 @@ export function MaterialList({ initialData }: MaterialListProps) {
           materials.map((item) => (
             <div key={item.id} className="group bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                <Button 
+                  onClick={() => handleDelete(item.id, item.titulo)}
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
@@ -99,6 +121,14 @@ export function MaterialList({ initialData }: MaterialListProps) {
           ))
         )}
       </div>
+      <MaterialDrawer 
+        material={selectedMaterial}
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedMaterial(null);
+        }}
+      />
     </div>
   );
 }

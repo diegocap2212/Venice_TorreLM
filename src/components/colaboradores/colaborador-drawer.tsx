@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { Loader2, Save, Trash2, User, Briefcase, Building2, Users, Mail, Calendar } from "lucide-react";
-import { updateColaborador, deleteColaborador } from "@/app/actions/colaborador-actions";
+import { updateColaborador, deleteColaborador, createColaborador } from "@/app/actions/colaborador-actions";
 import { format } from "date-fns";
 
 interface ColaboradorDrawerProps {
@@ -33,21 +33,49 @@ export function ColaboradorDrawer({ colaborador, isOpen, onClose }: ColaboradorD
         data_admissao: colaborador.data_admissao ? format(new Date(colaborador.data_admissao), "yyyy-MM-dd") : "",
         data_nascimento: colaborador.data_nascimento ? format(new Date(colaborador.data_nascimento), "yyyy-MM-dd") : "",
       });
+    } else {
+      setFormData({
+        nome: "",
+        cargo: "",
+        status: "Ativo",
+        torre: "",
+        squad: "",
+        email: "",
+        informacoes_internas: "",
+        data_admissao: format(new Date(), "yyyy-MM-dd"),
+        data_nascimento: "",
+      });
     }
-  }, [colaborador]);
+  }, [colaborador, isOpen]);
 
-  if (!colaborador || !formData) return null;
+  if (!formData) return null;
 
   const handleSave = async () => {
+    if (!formData.nome || !formData.cargo) {
+        alert("Nome e Cargo são obrigatórios.");
+        return;
+    }
+    
     setIsUpdating(true);
-    const updatedData = {
+    const dataToSave = {
       ...formData,
       data_admissao: new Date(formData.data_admissao),
-      data_nascimento: new Date(formData.data_nascimento),
+      data_nascimento: formData.data_nascimento ? new Date(formData.data_nascimento) : new Date(),
     };
-    await updateColaborador(colaborador.id, updatedData);
-    setIsUpdating(false);
-    onClose();
+
+    try {
+      if (colaborador?.id) {
+        await updateColaborador(colaborador.id, dataToSave);
+      } else {
+        await createColaborador(dataToSave);
+      }
+      onClose();
+    } catch (error) {
+      console.error("Erro ao salvar colaborador:", error);
+      alert("Erro ao salvar. Verifique os dados.");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -76,10 +104,10 @@ export function ColaboradorDrawer({ colaborador, isOpen, onClose }: ColaboradorD
               </div>
               <div>
                 <SheetTitle className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                  {formData.nome}
+                  {formData.nome || "Novo Colaborador"}
                 </SheetTitle>
                 <SheetDescription className="text-slate-400 font-medium text-xs">
-                  ID: {colaborador.id.substring(0, 8)} • Editando informações do colaborador
+                  {colaborador?.id ? `ID: ${colaborador.id.substring(0, 8)} • Editando informações` : "Preencha os dados do novo integrante da Torre"}
                 </SheetDescription>
               </div>
             </div>
@@ -204,16 +232,18 @@ export function ColaboradorDrawer({ colaborador, isOpen, onClose }: ColaboradorD
               disabled={isUpdating}
             >
               {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Salvar Alterações
+              {colaborador?.id ? "Salvar Alterações" : "Criar Colaborador"}
             </Button>
-            <Button 
-              variant="outline" 
-              className="h-12 w-12 rounded-2xl border-slate-200 text-slate-400 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all font-bold p-0"
-              onClick={handleDelete}
-              disabled={isUpdating}
-            >
-              <Trash2 className="w-5 h-5" />
-            </Button>
+            {colaborador?.id && (
+              <Button 
+                variant="outline" 
+                className="h-12 w-12 rounded-2xl border-slate-200 text-slate-400 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all font-bold p-0"
+                onClick={handleDelete}
+                disabled={isUpdating}
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
+            )}
           </div>
         </div>
       </SheetContent>

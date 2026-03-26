@@ -15,13 +15,17 @@ export function Topbar() {
   const getTitle = () => {
     if (currentView === "ways-of-working") return "VENICE | WAYS OF WORKING";
     if (currentView === "cone-locavia") return "VENICE | CONE LOCAVIA";
-    return currentTab === "onboarding" ? "2 - ONBOARDING PORTAL" : "1 - PIPELINE DE CONTRATAÇÕES";
+    if (currentView === "colaboradores") return "VENICE | COLABORADORES";
+    if (currentView === "reports") return "VENICE | REPORTS E MATERIAIS";
+    return "VENICE | TORRE LM";
   };
 
   const getSubtitle = () => {
     if (currentView === "ways-of-working") return "Guia de Processos e Cultura Venice";
     if (currentView === "cone-locavia") return "Dashboard de Performance e Métricas";
-    return currentTab === "onboarding" ? "Integração e Boas-vindas" : "Gestão de Talentos Torre LM";
+    if (currentView === "colaboradores") return "Gestão de Pessoas e Times";
+    if (currentView === "reports") return "Materiais, Atas e Documentos";
+    return currentTab === "onboarding" ? "Pipeline de Integração (Onboarding)" : "Pipeline de Recrutamento (R&S)";
   };
 
   return (
