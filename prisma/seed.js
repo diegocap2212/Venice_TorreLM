@@ -1,9 +1,18 @@
 require("dotenv").config();
+const { Pool } = require("pg");
+const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("@prisma/client");
 
-const prisma = new PrismaClient();
+const connectionString = `${process.env.DATABASE_URL}`;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  // 0. Limpar dados anteriores para evitar duplicatas
+  await prisma.vaga.deleteMany({});
+  await prisma.colaborador.deleteMany({});
+
   // 1. Criar usuários base (Roles)
   const bp = await prisma.user.upsert({
     where: { email: "rh@venice.com.br" },
@@ -112,6 +121,10 @@ async function main() {
     { nome: "Vânia Carolina Teixeira Viturino", cargo: "Product Owner", status: "Ativo", data_admissao: new Date("2024-09-16"), data_nascimento: new Date("1984-03-13"), torre: "Relacionamento e Operações", squad: "Chatbot", email: "ext.vania.viturino@lmmobilidade.com.br" },
     { nome: "Vinícius Saliture Martins", cargo: "Consultor SAP", status: "Ativo", data_admissao: new Date("2025-02-18"), data_nascimento: new Date("1989-07-26"), torre: "Backoffice", squad: "Atendimento N1 e módulo FI", email: "ext.vinicius.martins@lmmobilidade.com.br" }
   ];
+
+  for (const v of vagas) {
+    await prisma.vaga.create({ data: v });
+  }
 
   for (const c of colaboradores) {
     await prisma.colaborador.create({ data: c });
