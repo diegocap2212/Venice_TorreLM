@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, Lock, Mail, Sparkles, Loader2 } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
