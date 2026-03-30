@@ -12,7 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Credentials({
       name: "Venice Login",
       credentials: {
-        email: { label: "E-mail Venice", type: "email", placeholder: "usuario@venice.com.br" },
+        email: { label: "E-mail Venice", type: "email", placeholder: "usuario@venicetech.com.br" },
         password: { label: "Senha", type: "password" }
       },
       async authorize(credentials) {
@@ -24,9 +24,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials.password as string
 
         // Rigorosa validação de domínio Venice
-        const veniceDomain = "@venice.com.br"
-        if (!email.toLowerCase().endsWith(veniceDomain)) {
-          throw new Error(`Acesso restrito ao domínio ${veniceDomain}`)
+        const allowedDomains = ["@venicetech.com.br", "@venice.com.br"]
+        const userEmail = email.toLowerCase()
+        const isAllowed = allowedDomains.some(domain => userEmail.endsWith(domain))
+
+        if (!isAllowed) {
+          throw new Error(`Acesso restrito ao domínio corporativo Venice`)
         }
 
         const user = await prisma.user.findUnique({

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, Lock, Mail, Sparkles, Loader2 } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -81,7 +82,7 @@ export default function LoginPage() {
                 </div>
                 <Input 
                   type="email" 
-                  placeholder="usuario@venice.com.br" 
+                  placeholder="usuario@venicetech.com.br" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-14 py-7 bg-white/60 border-border/40 rounded-2xl text-sm focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-500 font-semibold placeholder:text-foreground/20 placeholder:font-black placeholder:uppercase placeholder:tracking-widest"
@@ -115,6 +116,12 @@ export default function LoginPage() {
               </div>
             )}
 
+            {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('registered') === 'true' && (
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-[11px] font-black uppercase tracking-wider text-center animate-in slide-in-from-top-3 duration-500">
+                Cadastro realizado com sucesso!
+              </div>
+            )}
+
             <Button 
               type="submit" 
               disabled={loading}
@@ -131,11 +138,20 @@ export default function LoginPage() {
               )}
             </Button>
 
-            <div className="pt-8 flex flex-col items-center gap-4 opacity-30 group">
-              <div className="h-[1px] w-24 bg-foreground/20 transition-all group-hover:w-32" />
-              <p className="text-center text-[9px] text-foreground font-black uppercase tracking-[0.4em]">
-                Venice Management · 2026
-              </p>
+            <div className="flex flex-col items-center gap-6 mt-4">
+              <Link 
+                href="/signup" 
+                className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 hover:text-primary transition-colors duration-300"
+              >
+                Não tem uma conta? <span className="text-primary underline underline-offset-4">Criar Conta Venice</span>
+              </Link>
+              
+              <div className="pt-4 flex flex-col items-center gap-4 opacity-30 group">
+                <div className="h-[1px] w-24 bg-foreground/20 transition-all group-hover:w-32" />
+                <p className="text-center text-[9px] text-foreground font-black uppercase tracking-[0.4em]">
+                  Venice Management · 2026
+                </p>
+              </div>
             </div>
           </form>
         </CardContent>

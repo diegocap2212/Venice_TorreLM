@@ -7,16 +7,16 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const isLoginPage = nextUrl.pathname === "/login"
+      const isAuthPage = nextUrl.pathname === "/login" || nextUrl.pathname === "/signup"
       const isAuthApi = nextUrl.pathname.startsWith("/api/auth")
 
       if (isAuthApi) return true
 
-      if (!isLoggedIn && !isLoginPage) {
+      if (!isLoggedIn && !isAuthPage) {
         return false // Redireciona para login
       }
       
-      if (isLoggedIn && isLoginPage) {
+      if (isLoggedIn && isAuthPage) {
         return Response.redirect(new URL("/", nextUrl))
       }
       
