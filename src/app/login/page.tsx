@@ -116,12 +116,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('registered') === 'true' && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-[11px] font-black uppercase tracking-wider text-center animate-in slide-in-from-top-3 duration-500">
-                Cadastro realizado com sucesso!
-              </div>
-            )}
-
             <Button 
               type="submit" 
               disabled={loading}
@@ -139,13 +133,6 @@ export default function LoginPage() {
             </Button>
 
             <div className="flex flex-col items-center gap-6 mt-4">
-              <Link 
-                href="/signup" 
-                className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 hover:text-primary transition-colors duration-300"
-              >
-                Não tem uma conta? <span className="text-primary underline underline-offset-4">Criar Conta Venice</span>
-              </Link>
-              
               <div className="pt-4 flex flex-col items-center gap-4 opacity-30 group">
                 <div className="h-[1px] w-24 bg-foreground/20 transition-all group-hover:w-32" />
                 <p className="text-center text-[9px] text-foreground font-black uppercase tracking-[0.4em]">
