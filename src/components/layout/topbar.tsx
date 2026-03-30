@@ -2,70 +2,91 @@
 
 import { useSearchParams } from "next/navigation";
 import { useRole, Role } from "@/components/providers/role-provider";
-import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/components/ui/select";
-import { Briefcase, Target, Users, LayoutDashboard } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import Image from "next/image";
+import { Briefcase, Target, Users, LayoutDashboard, User as UserIcon, ShieldCheck } from "lucide-react";
 
 export function Topbar() {
+  const { data: session } = useSession();
   const { role, setRole } = useRole();
   const searchParams = useSearchParams();
-  
-  const currentView = searchParams.get("view") || "pipeline";
+
+  const currentView = searchParams.get("view") || "home";
   const currentTab = searchParams.get("tab") || "recrutamento";
 
+  useEffect(() => {
+    if ((session?.user as any)?.role) {
+      setRole((session?.user as any).role as Role);
+    }
+  }, [session, setRole]);
+
   const getTitle = () => {
+    if (currentView === "home") return "VENICE | VISÃO GERAL";
     if (currentView === "ways-of-working") return "VENICE | WAYS OF WORKING";
     if (currentView === "cone-locavia") return "VENICE | CONE LOCAVIA";
     if (currentView === "colaboradores") return "VENICE | COLABORADORES";
     if (currentView === "reports") return "VENICE | REPORTS E MATERIAIS";
-    return currentTab === "onboarding" ? "VENICE | ONBOARDING" : "VENICE | RECRUTAMENTO";
+    if (currentView === "pipeline") {
+      return currentTab === "onboarding" ? "VENICE | ONBOARDING" : "VENICE | RECRUTAMENTO";
+    }
+    return "VENICE | SISTEMA";
   };
 
   const getSubtitle = () => {
+    if (currentView === "home") return "Centro de Controle e Indicadores da Torre";
     if (currentView === "ways-of-working") return "Guia de Processos e Cultura Venice";
     if (currentView === "cone-locavia") return "Dashboard de Performance e Métricas";
     if (currentView === "colaboradores") return "Gestão de Pessoas e Times";
     if (currentView === "reports") return "Materiais, Atas e Documentos";
-    return currentTab === "onboarding" ? "Pipeline de Integração (Experiência Onboarding)" : "Pipeline de Recrutamento (Seleção e R&S)";
+    if (currentView === "pipeline") {
+      return currentTab === "onboarding" ? "Pipeline de Integração (Experiência Onboarding)" : "Pipeline de Recrutamento (Seleção e R&S)";
+    }
+    return "Painel de Acesso Corporativo";
   };
 
   return (
-    <header className="h-20 border-b border-slate-200 bg-emerald-500/[0.03] flex items-center justify-between px-8 shrink-0 relative overflow-hidden transition-all duration-300">
-      {/* Visual Accents */}
-      <div className="absolute top-0 right-1/4 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -translate-y-1/2" />
+    <header className="h-24 border-b border-border bg-white/40 backdrop-blur-xl flex items-center justify-between px-10 shrink-0 relative overflow-hidden transition-all duration-500">
+      {/* Decorative Gradient Accent */}
+      <div className="absolute top-0 right-[15%] w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 pointer-events-none" />
       
-      <div className="flex items-center gap-4 relative z-10">
+      <div className="flex items-center gap-10 relative z-10">
+        <div className="flex items-center gap-6 pr-8 border-r border-border/50">
+          <div className="relative w-28 h-8 flex items-center justify-center transition-transform duration-500 hover:scale-105">
+            <Image 
+              src="/venice-logo-black.png"
+              alt="Venice Logo" 
+              className="w-full h-full object-contain" 
+              width={112}
+              height={32}
+              priority
+            />
+          </div>
+        </div>
+
         <div className="flex flex-col">
-          <div className="flex items-center gap-2 mb-0.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 shadow-sm shadow-emerald-500/40 animate-pulse" />
-            <h1 className="text-sm font-black text-slate-800 uppercase tracking-tighter">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_12px_rgba(0,255,153,0.5)] animate-pulse" />
+            <h1 className="text-base font-black text-foreground uppercase tracking-[0.1em]">
               {getTitle()}
             </h1>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-3.5 italic">
+          <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em] pl-5 italic">
             {getSubtitle()}
           </p>
         </div>
       </div>
       
-      <div className="flex items-center gap-6 relative z-10">
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Simular Perfil:</span>
-          <Select value={role} onValueChange={(r) => setRole(r as Role)}>
-            <SelectTrigger className="w-[160px] h-9 text-[10px] font-black uppercase tracking-widest bg-white border-slate-200 rounded-xl shadow-sm hover:border-primary/30 transition-all">
-              <SelectValue placeholder="Role" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-slate-200 rounded-xl overflow-hidden shadow-2xl">
-              <SelectItem value="BP" className="text-[10px] font-black uppercase tracking-widest py-2.5">BP (RH)</SelectItem>
-              <SelectItem value="G" className="text-[10px] font-black uppercase tracking-widest py-2.5">Gerente (G)</SelectItem>
-              <SelectItem value="SDM" className="text-[10px] font-black uppercase tracking-widest py-2.5">Delivery (SDM)</SelectItem>
-              <SelectItem value="DP" className="text-[10px] font-black uppercase tracking-widest py-2.5">Dep. Pessoal (DP)</SelectItem>
-              <SelectItem value="ADMIN" className="text-[10px] font-black uppercase tracking-widest py-2.5">Admin Full</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[11px] font-black text-emerald-600 shadow-sm shadow-emerald-500/5">
-          {role}
+      <div className="flex items-center gap-8 relative z-10">
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="flex items-center gap-3 group cursor-default">
+            <span className="text-[11px] font-black text-foreground uppercase tracking-widest opacity-80 group-hover:opacity-100 transition-opacity">
+              {session?.user?.name || "Usuário"}
+            </span>
+            <div className="w-10 h-10 rounded-2xl bg-foreground text-primary flex items-center justify-center text-xs font-black border border-border shadow-inner group-hover:scale-105 transition-transform">
+              {session?.user?.name?.charAt(0) || "U"}
+            </div>
+          </div>
         </div>
       </div>
     </header>

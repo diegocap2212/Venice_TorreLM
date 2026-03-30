@@ -9,6 +9,7 @@ datasource db {
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
+  password      String?   // Hashed password
   name          String?
   role          String    @default("BP")
   vagas_criadas Vaga[]    @relation("CriadorVaga")

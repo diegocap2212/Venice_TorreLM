@@ -3,6 +3,7 @@ import { CreateVagaDialog } from "@/components/kanban/create-vaga-dialog";
 import { WebView } from "@/components/shared/webview";
 import { ColaboradoresTable } from "@/components/colaboradores/colaboradores-table";
 import { MaterialList } from "@/components/reports/material-list";
+import { HomeDashboard, DashboardData } from "@/components/dashboard/home-dashboard";
 import { prisma } from "@/lib/prisma";
 
 export default async function KanbanPage({ 
@@ -10,7 +11,7 @@ export default async function KanbanPage({
 }: { 
   searchParams: Promise<{ tab?: string; view?: string }> 
 }) {
-  const { tab, view = "pipeline" } = await searchParams;
+  const { tab, view = "home" } = await searchParams;
 
   let vagas: any[] = [];
   let colaboradores: any[] = [];
@@ -90,10 +91,44 @@ export default async function KanbanPage({
   const rsVagas = vagas.filter((v) => recrutamentoStages.includes(v.etapa_atual));
   const onboardingVagas = vagas.filter((v) => onboardingStages.includes(v.etapa_atual));
 
+  // --- Processamento de Métricas para a Home Dashboard ---
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  const totalAtivos = colaboradores.filter(c => c.status === "Ativo").length;
+
+  const aniversariantes = colaboradores.filter(c => {
+    if (!c.data_nascimento) return false;
+    return new Date(c.data_nascimento).getMonth() === currentMonth;
+  });
+
+  const contratacoesMes = colaboradores.filter(c => {
+    if (!c.data_admissao) return false;
+    const admissionDate = new Date(c.data_admissao);
+    return admissionDate.getMonth() === currentMonth && admissionDate.getFullYear() === currentYear;
+  });
+
+  const demissoesMes = colaboradores.filter(c => {
+    if (!c.data_desligamento) return false;
+    const demissionDate = new Date(c.data_desligamento);
+    return demissionDate.getMonth() === currentMonth && demissionDate.getFullYear() === currentYear;
+  });
+
+  const homeData: DashboardData = {
+    totalAtivos,
+    aniversariantes,
+    contratacoesMes,
+    demissoesMes
+  };
+  // -------------------------------------------------------
+
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden">
       <div className="flex-1 overflow-auto transition-all duration-500 ease-in-out">
-        {view === "pipeline" ? (
+        {view === "home" ? (
+          <HomeDashboard data={homeData} />
+        ) : view === "pipeline" ? (
           <div className="p-10 min-h-full bg-[#f8fafc]/50">
             <div className="max-w-[1600px] mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="flex justify-between items-center">

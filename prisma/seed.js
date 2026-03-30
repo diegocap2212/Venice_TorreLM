@@ -2,6 +2,7 @@ require("dotenv").config();
 const { Pool } = require("pg");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
@@ -13,12 +14,17 @@ async function main() {
   await prisma.vaga.deleteMany({});
   await prisma.colaborador.deleteMany({});
 
-  // 1. Criar usuários base (Roles)
+  // 1. Criar usuários base (Roles) com senha padrão 'venice123'
+  const hashedPassword = await bcrypt.hash("venice123", 10);
+
   const bp = await prisma.user.upsert({
     where: { email: "rh@venice.com.br" },
-    update: {},
+    update: {
+      password: hashedPassword,
+    },
     create: {
       email: "rh@venice.com.br",
+      password: hashedPassword,
       name: "Ana (BP RH)",
       role: "BP",
     },
@@ -26,9 +32,12 @@ async function main() {
 
   const sdm = await prisma.user.upsert({
     where: { email: "sdm@venice.com.br" },
-    update: {},
+    update: {
+      password: hashedPassword,
+    },
     create: {
       email: "sdm@venice.com.br",
+      password: hashedPassword,
       name: "Carlos (SDM)",
       role: "SDM",
     },

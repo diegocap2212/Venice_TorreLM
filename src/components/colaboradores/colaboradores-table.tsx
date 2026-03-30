@@ -16,6 +16,14 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   MoreHorizontal, 
   UserPlus, 
@@ -26,7 +34,10 @@ import {
   User,
   Building2,
   Users as UsersIcon,
-  Mail
+  Mail,
+  Search,
+  Filter,
+  X
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -54,6 +65,22 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
   const [data, setData] = useState(initialData);
   const [selectedColab, setSelectedColab] = useState<Colaborador | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
+  // Estados de filtro
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCargo, setSelectedCargo] = useState("all");
+
+  const cargos = Array.from(new Set(initialData.map(c => c.cargo))).sort();
+
+  const filteredData = data.filter(colab => {
+    const matchesSearch = 
+      colab.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (colab.email?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    
+    const matchesCargo = selectedCargo === "all" || colab.cargo === selectedCargo;
+    
+    return matchesSearch && matchesCargo;
+  });
 
   useEffect(() => {
     setData(initialData);
@@ -73,16 +100,64 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between px-2">
-        <div className="relative w-72">
-          {/* Search placeholder */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-72 group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+            <Input 
+              placeholder="Buscar por nome ou email..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-10 py-5 bg-white border-slate-200 rounded-xl text-xs focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500/50 shadow-sm transition-all"
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-100 text-slate-400 transition-colors"
+                title="Limpar busca"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          <Select value={selectedCargo} onValueChange={(val) => setSelectedCargo(val || "all")}>
+            <SelectTrigger className="w-full sm:w-48 py-5 bg-white border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 focus:ring-emerald-500/20 shadow-sm transition-all">
+              <div className="flex items-center gap-2">
+                <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <SelectValue placeholder="FILTRAR POR CARGO" />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="bg-white border-slate-200 rounded-xl shadow-xl">
+              <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700">TODOS OS CARGOS</SelectItem>
+              {cargos.map((cargo) => (
+                <SelectItem key={cargo} value={cargo} className="text-[10px] font-black uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700">
+                  {cargo.toUpperCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {(searchTerm !== "" || selectedCargo !== "all") && (
+             <Button 
+              variant="ghost" 
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCargo("all");
+              }}
+              className="text-[9px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg px-3"
+             >
+               Limpar Filtros
+             </Button>
+          )}
         </div>
+
         <Button 
           onClick={() => {
             setSelectedColab(null);
             setIsDrawerOpen(true);
           }}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-5 py-5 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
         >
           <UserPlus className="w-4 h-4" />
           Novo Colaborador
@@ -102,14 +177,34 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
+            {filteredData.length === 0 ? (
               <TableRow>
-                <TableCell className="py-12 px-6 text-center text-sm text-slate-400" colSpan={6}>
-                  Nenhum colaborador encontrado. Use o botão "Novo Colaborador" para começar.
+                <TableCell className="py-24 px-6 text-center" colSpan={6}>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300">
+                      <Search className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800">Nenhum colaborador encontrado</p>
+                      <p className="text-xs text-slate-400 mt-1">Tente ajustar seus filtros ou busca.</p>
+                    </div>
+                    {(searchTerm !== "" || selectedCargo !== "all") && (
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setSearchTerm("");
+                          setSelectedCargo("all");
+                        }}
+                        className="mt-2 text-[9px] font-black uppercase tracking-widest rounded-lg"
+                      >
+                        Limpar todos os filtros
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((colab) => (
+              filteredData.map((colab) => (
                 <TableRow key={colab.id} className="border-slate-100 hover:bg-slate-50/30 transition-colors group">
                 <TableCell className="py-4 px-6 text-slate-700">
                   <div className="flex items-center gap-3">
