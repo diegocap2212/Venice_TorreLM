@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run wow:build && next build",
+    "build": "npm run wow:install && npm run wow:build && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
