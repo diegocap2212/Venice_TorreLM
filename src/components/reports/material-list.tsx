@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { 
   FileText, 
   Download, 
@@ -10,11 +9,9 @@ import {
   ExternalLink,
   Presentation,
   FileVideo,
-  FileArchive,
-  Upload
+  FileArchive
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createMaterial } from "@/app/actions/material-actions";
 import { format } from "date-fns";
 import { MaterialDrawer } from "./material-drawer";
 import { deleteMaterial } from "@/app/actions/material-actions";
@@ -36,65 +33,12 @@ export function MaterialList({ initialData }: MaterialListProps) {
   const [materials, setMaterials] = useState(initialData);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const handleDelete = async (id: string, titulo: string) => {
     if (confirm(`Excluir material "${titulo}"?`)) {
       setMaterials(materials.filter(m => m.id !== id));
       await deleteMaterial(id);
     }
-  };
-
-  const getUploadType = (file: File) => {
-    if (file.type.includes("video")) return "vídeo";
-    if (file.type.includes("pdf") || file.type.includes("officedocument")) return "anexo";
-    if (file.type.includes("presentation") || file.name.match(/\.(pptx?|pdf)$/i)) return "apresentação";
-    return "documento";
-  };
-
-  const toDataURL = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") resolve(reader.result);
-        else reject(new Error("Não foi possível ler arquivo"));
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-
-    try {
-      const url = await toDataURL(file);
-      const data = new FormData();
-      data.append("titulo", file.name);
-      data.append("descricao", `Upload local via PC (${file.type || "sem tipo"})`);
-      data.append("url", url);
-      data.append("tipo", getUploadType(file));
-
-      const newMaterial = await createMaterial(data);
-
-      setMaterials((prev) => [newMaterial as Material, ...prev]);
-      router.refresh();
-    } catch (error) {
-      console.error("Falha ao enviar material:", error);
-      alert("Erro ao subir arquivo. Tente novamente.");
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  const openFilePicker = () => {
-    fileInputRef.current?.click();
   };
 
   const getIcon = (tipo: string) => {
@@ -112,28 +56,10 @@ export function MaterialList({ initialData }: MaterialListProps) {
         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Repositório Venice Materials</h3>
 
         <div className="flex items-center gap-3">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="*/*"
-            className="hidden"
-            onChange={handleFileSelect}
-          />
-
-          <Button
-            onClick={openFilePicker}
-            disabled={isUploading}
-            variant="outline"
-            className="rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest border-2 border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition-all flex items-center gap-2"
-          >
-            <Upload className="w-4 h-4" />
-            {isUploading ? "Enviando..." : "Subir do PC"}
-          </Button>
-
           <Button 
             onClick={() => {
-              setSelectedMaterial(null);
-              setIsDrawerOpen(true);
+               setSelectedMaterial(null);
+               setIsDrawerOpen(true);
             }}
             className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 flex items-center gap-2"
           >
@@ -147,10 +73,10 @@ export function MaterialList({ initialData }: MaterialListProps) {
         {materials.length === 0 ? (
           <div className="col-span-full py-20 bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-10 animate-in fade-in duration-700">
             <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 text-slate-200">
-              <FileText className="w-8 h-8" />
+               <FileText className="w-8 h-8" />
             </div>
             <p className="text-sm font-black text-slate-800 uppercase tracking-tighter">Nenhum material encontrado</p>
-            <p className="text-xs text-slate-400 mt-1 max-w-[240px] font-medium">Comece subindo suas apresentações ou adicionando links externos.</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-[240px] font-medium">Comece adicionando links para documentos, vídeos ou apresentações.</p>
           </div>
         ) : (
           materials.map((item) => (
@@ -195,9 +121,6 @@ export function MaterialList({ initialData }: MaterialListProps) {
                     Visualizar
                   </Button>
                 </a>
-                <Button variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200">
-                  <Download className="w-4 h-4" />
-                </Button>
               </div>
             </div>
           ))

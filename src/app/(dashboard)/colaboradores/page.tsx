@@ -7,6 +7,18 @@ export default async function ColaboradoresPage() {
   try {
     colaboradores = await prisma.colaborador.findMany({
       orderBy: { nome: "asc" },
+      select: {
+        id: true,
+        nome: true,
+        cargo: true,
+        status: true,
+        data_admissao: true,
+        data_nascimento: true,
+        torre: true,
+        squad: true,
+        email: true,
+        // informacoes_internas propositalmente omitido aqui para performance
+      }
     }) || [];
   } catch (err) {
     console.error("[colaboradores] Prisma query failed", err);

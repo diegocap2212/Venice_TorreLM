@@ -56,6 +56,7 @@ export function WebView({ url, title }: WebViewProps) {
           src={url} 
           className="w-full h-full border-0 bg-white shadow-inner"
           onLoad={() => setIsLoading(false)}
+          loading="lazy"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         />
       </div>

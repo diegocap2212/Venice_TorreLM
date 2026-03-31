@@ -1,82 +1,73 @@
-import { HomeDashboard, DashboardData } from "@/components/dashboard/home-dashboard";
-import { prisma } from "@/lib/prisma";
+import { HomeDashboard } from "@/components/dashboard/home-dashboard";
+import { getCachedDashboardData } from "@/lib/cache-utils";
 
 export default async function HomePage() {
-  let colaboradores: any[] = [];
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  let dashboardResults: any = {
+    totalAtivos: 0,
+    aniversariantes: [],
+    contratacoesMes: [],
+    demissoesMes: [],
+    vagasRecrutamento: 0,
+    vagasOnboarding: 0,
+    headcountPorSquad: []
+  };
 
   try {
-    colaboradores = await prisma.colaborador.findMany({
-      orderBy: { nome: "asc" },
-    }) || [];
+    const {
+      totalAtivos,
+      aniversariantesRaw,
+      contratacoesMes,
+      demissoesMes,
+      vagasData,
+      allAtivosSquads
+    } = await getCachedDashboardData(firstDayOfMonth, lastDayOfMonth);
+
+    // Processamento leve em memória para filtros complexos
+    const currentMonth = today.getMonth();
+    const aniversariantes = aniversariantesRaw.filter((c: any) => 
+      c.data_nascimento && new Date(c.data_nascimento).getMonth() === currentMonth
+    );
+
+    const recrutamentoStages = ["REQUISICAO", "PREPARACAO", "TRIAGEM", "SHORTLIST", "ENTREVISTA_CLIENTE", "APROVACAO_PROPOSTA"];
+    const onboardingStages = ["CONTRATACAO", "ONB_ADMINISTRATIVO", "ONB_OPERACIONAL", "SEMANA_1", "MES_1_ALEM"];
+
+    const vagasRecrutamento = vagasData.filter(v => recrutamentoStages.includes(v.etapa_atual)).length;
+    const vagasOnboarding = vagasData.filter(v => onboardingStages.includes(v.etapa_atual)).length;
+
+    // Headcount por Squad (Desta vez processando apenas o campo 'squad')
+    const squadCounts: Record<string, number> = {};
+    allAtivosSquads.forEach(c => {
+      if (c.squad) squadCounts[c.squad] = (squadCounts[c.squad] || 0) + 1;
+    });
+
+    const headcountPorSquad = Object.entries(squadCounts)
+      .map(([squad, count]) => ({ squad, count }))
+      .sort((a, b) => b.count - a.count);
+
+    dashboardResults = {
+      totalAtivos,
+      aniversariantes,
+      contratacoesMes,
+      demissoesMes,
+      vagasRecrutamento,
+      vagasOnboarding,
+      headcountPorSquad
+    };
+
   } catch (err) {
-    console.error("[page] Prisma query failed, using empty data", err);
+    console.error("[page] Dashboard optimization failed", err);
   }
-
-  const sampleColaboradores = [
-    {
-      id: "sample-1",
-      nome: "Ana Souza",
-      cargo: "Analista de RH",
-      status: "Ativo",
-      data_admissao: new Date().toISOString(),
-      data_nascimento: new Date(1990, 5, 10).toISOString(),
-      torre: "Venice",
-      squad: "Growth",
-      email: "ana.souza@example.com",
-    },
-    {
-      id: "sample-2",
-      nome: "Bruno Lima",
-      cargo: "Talent Partner",
-      status: "Ativo",
-      data_admissao: new Date().toISOString(),
-      data_nascimento: new Date(1988, 10, 3).toISOString(),
-      torre: "Venice",
-      squad: "TA",
-      email: "bruno.lima@example.com",
-    },
-  ];
-
-  if (colaboradores.length === 0) {
-    colaboradores = sampleColaboradores;
-  }
-
-  // --- Processamento de Métricas para a Home Dashboard ---
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-
-  const totalAtivos = colaboradores.filter(c => c.status === "Ativo").length;
-
-  const aniversariantes = colaboradores.filter(c => {
-    if (!c.data_nascimento) return false;
-    return new Date(c.data_nascimento).getMonth() === currentMonth;
-  });
-
-  const contratacoesMes = colaboradores.filter(c => {
-    if (!c.data_admissao) return false;
-    const admissionDate = new Date(c.data_admissao);
-    return admissionDate.getMonth() === currentMonth && admissionDate.getFullYear() === currentYear;
-  });
-
-  const demissoesMes = colaboradores.filter(c => {
-    if (!c.data_desligamento) return false;
-    const demissionDate = new Date(c.data_desligamento);
-    return demissionDate.getMonth() === currentMonth && demissionDate.getFullYear() === currentYear;
-  });
-
-  const homeData: DashboardData = {
-    totalAtivos,
-    aniversariantes,
-    contratacoesMes,
-    demissoesMes
-  };
   // -------------------------------------------------------
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden">
       <div className="flex-1 overflow-auto transition-all duration-500 ease-in-out">
-        <HomeDashboard data={homeData} />
+        {/* @ts-ignore */}
+        <HomeDashboard data={dashboardResults} />
       </div>
     </div>
   );

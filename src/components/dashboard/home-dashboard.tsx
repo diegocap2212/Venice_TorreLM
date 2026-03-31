@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Cake, UserPlus, UserMinus, TrendingUp, Activity } from "lucide-react";
+import { Users, Cake, UserPlus, UserMinus, TrendingUp, Activity, Briefcase, BarChart2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 
 export interface DashboardData {
@@ -8,6 +8,9 @@ export interface DashboardData {
   aniversariantes: Array<{ id: string; nome: string; cargo: string; data_nascimento: Date }>;
   contratacoesMes: Array<{ id: string; nome: string; cargo: string; data_admissao: Date }>;
   demissoesMes: Array<{ id: string; nome: string; cargo: string; data_desligamento: Date }>;
+  vagasRecrutamento?: number;
+  vagasOnboarding?: number;
+  headcountPorSquad?: Array<{squad: string; count: number}>;
 }
 
 interface DashboardProps {
@@ -15,7 +18,7 @@ interface DashboardProps {
 }
 
 export function HomeDashboard({ data }: DashboardProps) {
-  const { totalAtivos, aniversariantes, contratacoesMes, demissoesMes } = data;
+  const { totalAtivos, aniversariantes, contratacoesMes, demissoesMes, vagasRecrutamento, vagasOnboarding, headcountPorSquad } = data;
 
   return (
     <div className="p-10 min-h-full bg-background relative overflow-hidden">
@@ -150,26 +153,63 @@ export function HomeDashboard({ data }: DashboardProps) {
 
         </div>
 
-        {/* Detailed Placeholder Section for specific insights */}
+        {/* Dynamic Data Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="rounded-[32px] border-border/40 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.05)] bg-white/40 backdrop-blur-xl p-8 min-h-[300px] flex flex-col justify-center items-center text-center group hover:border-primary/50 transition-colors duration-500 cursor-default">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
-               <Activity className="w-8 h-8" />
+          <Card className="rounded-[32px] border-border/40 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.05)] bg-white/40 backdrop-blur-xl p-8 min-h-[300px] flex flex-col justify-between group hover:border-emerald-500/50 transition-colors duration-500">
+            <div>
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 mb-6 group-hover:scale-110 transition-transform duration-500">
+                <Briefcase className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-black text-foreground uppercase tracking-widest mb-2">Visão do Pipeline</h3>
+              <p className="text-sm text-foreground/50 mb-8">
+                Cadeia de vagas ativas transitando no pipeline de contratação da torre.
+              </p>
             </div>
-            <h3 className="text-lg font-black text-foreground uppercase tracking-widest mb-2">Saúde Organizacional</h3>
-            <p className="text-sm text-foreground/50 max-w-sm">
-              Módulo de Heatmap e Distribuição de Senioridade integrado com o Cone Locavia em desenvolvimento.
-            </p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/60 rounded-[1.5rem] p-5 shadow-sm border border-emerald-100/50">
+                <span className="text-[10px] uppercase font-black tracking-widest text-emerald-600 block mb-1">Em Seleção</span>
+                <span className="text-4xl font-black text-slate-800">{vagasRecrutamento !== undefined ? vagasRecrutamento : 0}</span>
+                <span className="text-[10px] text-slate-400 block mt-1 font-medium tracking-wide">Vagas no funil de R&S</span>
+              </div>
+              <div className="bg-white/60 rounded-[1.5rem] p-5 shadow-sm border border-orange-100/50">
+                <span className="text-[10px] uppercase font-black tracking-widest text-orange-600 block mb-1">Em Onboarding</span>
+                <span className="text-4xl font-black text-slate-800">{vagasOnboarding !== undefined ? vagasOnboarding : 0}</span>
+                <span className="text-[10px] text-slate-400 block mt-1 font-medium tracking-wide">Para iniciarem/integrarem</span>
+              </div>
+            </div>
           </Card>
 
-          <Card className="rounded-[32px] border-border/40 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.05)] bg-white/40 backdrop-blur-xl p-8 min-h-[300px] flex flex-col justify-center items-center text-center group hover:border-primary/50 transition-colors duration-500 cursor-default">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
-               <TrendingUp className="w-8 h-8" />
+          <Card className="rounded-[32px] border-border/40 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.05)] bg-white/40 backdrop-blur-xl p-8 min-h-[300px] flex flex-col justify-between group hover:border-blue-500/50 transition-colors duration-500">
+            <div>
+              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition-transform duration-500">
+                <BarChart2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-black text-foreground uppercase tracking-widest mb-2">Headcount (Top Squads)</h3>
+              <p className="text-sm text-foreground/50 mb-6">
+                Distribuição de equipe reportando ativamente dentro da torre.
+              </p>
             </div>
-            <h3 className="text-lg font-black text-foreground uppercase tracking-widest mb-2">Crescimento da Torre</h3>
-            <p className="text-sm text-foreground/50 max-w-sm">
-              Gráfico de progressão da taxa de crescimento base x volume de features em breve.
-            </p>
+
+            <div className="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              {(headcountPorSquad || []).slice(0, 5).map((squadData, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-white/60 border border-slate-100 shadow-sm transition-all hover:bg-white hover:shadow-md">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs">
+                      #{i + 1}
+                    </div>
+                    <span className="font-bold text-sm text-slate-800 tracking-tight">{squadData.squad}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="font-black text-blue-600">{squadData.count}</span>
+                  </div>
+                </div>
+              ))}
+              {(headcountPorSquad || []).length === 0 && (
+                <div className="text-center text-sm text-slate-400 font-medium py-4">Nenhum dado cadastrado aos squads.</div>
+              )}
+            </div>
           </Card>
         </div>
       </div>

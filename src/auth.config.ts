@@ -20,6 +20,20 @@ export const authConfig = {
       if (isLoggedIn && isLoginPage) {
         return Response.redirect(new URL("/", nextUrl))
       }
+
+      // Restrição de Acesso para Scrum Masters (SM)
+      if (isLoggedIn && (auth.user as any).role === "SM") {
+        const allowedPaths = ["/ways-of-working", "/cone-locavia", "/api/wow"]
+        const isAllowed = allowedPaths.some(path => nextUrl.pathname.startsWith(path)) || nextUrl.pathname.startsWith("/_next")
+        
+        if (nextUrl.pathname === "/") {
+          return Response.redirect(new URL("/ways-of-working", nextUrl))
+        }
+
+        if (!isAllowed) {
+          return Response.redirect(new URL("/ways-of-working", nextUrl)) // Ou uma página de acesso negado
+        }
+      }
       
       return true
     },

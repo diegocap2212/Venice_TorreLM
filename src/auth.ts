@@ -45,11 +45,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const domainParts = userEmail.split('@')[0].split('.');
           const inferredName = domainParts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 
+          const smEmails: string[] = [] // Lista de emails enviada pelo usuário futuramente
+          const inferredRole = smEmails.includes(userEmail) ? "SM" : "BP"
+
           user = await prisma.user.create({
             data: {
               email: userEmail,
               name: inferredName,
-              role: "BP", // Default role
+              role: inferredRole,
               password: await bcrypt.hash(masterPassword, 10)
             }
           })

@@ -63,3 +63,71 @@ model Material {
   data_upload       DateTime @default(now())
   created_at        DateTime @default(now())
 }
+
+// --- Ways of Working Models (Migrated from Supabase) ---
+
+model WowReport {
+  id             String    @id @default(uuid())
+  sm             String
+  squad          String
+  date           String    // YYYY-MM-DD
+  cone           Boolean?
+  coneText       String?   @map("cone_text")
+  pdti           Boolean?
+  pdtiText       String?   @map("pdti_text")
+  parado         Boolean?
+  paradoText     String?   @map("parado_text")
+  wipEpic        Boolean?
+  wipEpicText    String?   @map("wip_epic_text")
+  wipUs          Boolean?
+  wipUsText      String?   @map("wip_us_text")
+  oQue           String?   @map("o_que")
+  problemas      String?
+  acoes          String?
+  images         Json?     // List of {data: string}
+  created_at     DateTime  @default(now())
+  
+  @@map("wow_reports")
+}
+
+model WowWeeklyReport {
+  id             String    @id @default(uuid())
+  sm             String
+  week           String    // YYYY-Www
+  q1             String?
+  q2             String?
+  q3             String?
+  q4             String?
+  created_at     DateTime  @default(now())
+
+  @@map("wow_weekly_reports")
+}
+
+model WowSquadReport {
+  id             String    @id @default(uuid())
+  sm             String
+  squad          String
+  week           String
+  notes          String?
+  q1             String?
+  q2             String?
+  q3             String?
+  q4             String?
+  created_at     DateTime  @default(now())
+
+  @@unique([sm, squad, week])
+  @@map("wow_squad_reports")
+}
+
+model WowSquadOverride {
+  id             String    @id @default(uuid())
+  sm             String
+  squad          String
+  week           String
+  field          String
+  value          Float
+  created_at     DateTime  @default(now())
+
+  @@unique([sm, squad, week, field])
+  @@map("wow_squad_overrides")
+}
