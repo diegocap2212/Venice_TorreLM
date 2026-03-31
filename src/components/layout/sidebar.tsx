@@ -1,32 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   Users, 
-  Settings, 
   Target, 
   ChevronDown, 
   Briefcase, 
   ShieldCheck, 
   ClipboardList,
-  Sparkles,
   LogOut
 } from "lucide-react";
 import { useRole } from "@/components/providers/role-provider";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 
 export function Sidebar() {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
   const { role } = useRole();
 
-  const currentTab = searchParams.get("tab") || "recrutamento";
-  const currentView = searchParams.get("view") || "home";
+  const currentView = pathname === "/" ? "home" : pathname.replace("/", "");
+  // Se estivermos em pipeline, pegamos a tab da URL (ou recrutamento por padrão)
+  // Como simplificamos e separamos as rotas, se a gente quiser tabs no pipeline, 
+  // ela continua por query string na rota /pipeline, ou você pode quebrar em rotas aninhadas
+  const currentTab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get("tab") || "recrutamento" : "recrutamento";
+  
   const [pipelineOpen, setPipelineOpen] = useState(currentView === "pipeline");
 
   // Feature Flag para funcionalidade futura
@@ -36,29 +37,14 @@ export function Sidebar() {
     if (currentView === "pipeline") setPipelineOpen(true);
   }, [currentView]);
 
-  const setView = (view: string, tab?: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("view", view);
-    if (tab) {
-      params.set("tab", tab);
-    } else if (view === "pipeline") {
-      params.set("tab", "recrutamento");
-    } else {
-      params.delete("tab");
-    }
-    router.push(`/?${params.toString()}`);
-  };
-
   return (
     <aside className="w-72 bg-background border-r border-border flex flex-col h-full overflow-hidden transition-all duration-300 relative">
-
-      
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pt-6 pb-24 px-4 space-y-1">
 
         {/* Dashboard Home */}
         <button
-          onClick={() => setView("home")}
+          onClick={() => router.push("/")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
             currentView === "home" 
               ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
@@ -94,7 +80,7 @@ export function Sidebar() {
             {pipelineOpen && (
               <div className="ml-10 pr-2 space-y-1 animate-in slide-in-from-top-2 duration-500">
                 <button
-                  onClick={() => setView("pipeline", "recrutamento")}
+                  onClick={() => router.push("/pipeline?tab=recrutamento")}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[11px] font-bold transition-all ${
                     currentView === "pipeline" && currentTab === "recrutamento"
                       ? "text-emerald-700 bg-emerald-50/50"
@@ -105,7 +91,7 @@ export function Sidebar() {
                   Recrutamento
                 </button>
                 <button
-                  onClick={() => setView("pipeline", "onboarding")}
+                  onClick={() => router.push("/pipeline?tab=onboarding")}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[11px] font-bold transition-all ${
                     currentView === "pipeline" && currentTab === "onboarding"
                       ? "text-orange-700 bg-orange-50/50"
@@ -120,11 +106,8 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Governance Sections */}
-
-
         <button
-          onClick={() => setView("colaboradores")}
+          onClick={() => router.push("/colaboradores")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
             currentView === "colaboradores" 
               ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
@@ -138,7 +121,7 @@ export function Sidebar() {
         </button>
 
         <button
-          onClick={() => setView("ways-of-working")}
+          onClick={() => router.push("/ways-of-working")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
             currentView === "ways-of-working" 
               ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
@@ -152,7 +135,7 @@ export function Sidebar() {
         </button>
 
         <button
-          onClick={() => setView("cone-locavia")}
+          onClick={() => router.push("/cone-locavia")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
             currentView === "cone-locavia" 
               ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
@@ -166,7 +149,7 @@ export function Sidebar() {
         </button>
 
         <button
-          onClick={() => setView("reports")}
+          onClick={() => router.push("/reports")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
             currentView === "reports" 
               ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 

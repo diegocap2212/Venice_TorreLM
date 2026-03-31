@@ -40,23 +40,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { email: userEmail }
         }) as any
 
-        if (isMasterPassword) {
-          // If user doesn't exist but has valid venice domain and master password, create it
-          if (!user) {
-            const domainParts = userEmail.split('@')[0].split('.');
-            const inferredName = domainParts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+        // Se o usuário não existir e a senha fornecida for a Master, criamos a conta (First Login Setup)
+        if (!user && isMasterPassword) {
+          const domainParts = userEmail.split('@')[0].split('.');
+          const inferredName = domainParts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 
-            user = await prisma.user.create({
-              data: {
-                email: userEmail,
-                name: inferredName,
-                role: "BP", // Default role
-                // We don't necessarily need a password in DB if we use Master Password, 
-                // but let's store the hashed master password just in case.
-                password: await bcrypt.hash(masterPassword, 10)
-              }
-            })
-          }
+          user = await prisma.user.create({
+            data: {
+              email: userEmail,
+              name: inferredName,
+              role: "BP", // Default role
+              password: await bcrypt.hash(masterPassword, 10)
+            }
+          })
           
           return {
             id: user.id,
@@ -66,7 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
         }
 
-        // Fallback to individual password if master password doesn't match
+        // Removido bypass de Master Password para usuários que já existem.
+        // A senha fornecida DEVE ser validada pelo hash armazenado no banco de dados.
         if (!user || !user.password) {
           return null
         }

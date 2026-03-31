@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useRole, Role } from "@/components/providers/role-provider";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
@@ -10,9 +10,10 @@ import { Briefcase, Target, Users, LayoutDashboard, User as UserIcon, ShieldChec
 export function Topbar() {
   const { data: session } = useSession();
   const { role, setRole } = useRole();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const currentView = searchParams.get("view") || "home";
+  const currentView = pathname === "/" ? "home" : pathname.replace("/", "");
   const currentTab = searchParams.get("tab") || "recrutamento";
 
   useEffect(() => {
