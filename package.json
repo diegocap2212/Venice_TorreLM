@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run wow:install && npm run wow:build && next build",
+    "build": "NEXT_TELEMETRY_DISABLED=1 npm run wow:install && npm run wow:build && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "wow:install": "cd my-process-portal && npm install",
+    "wow:install": "cd my-process-portal && npm ci --no-audit --loglevel=error",
     "wow:build": "cd my-process-portal && npm run build && mkdir -p ../public/wow && cp -rv dist/* ../public/wow/"
   },
   "dependencies": {
