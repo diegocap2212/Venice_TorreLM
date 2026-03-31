@@ -11,15 +11,15 @@ interface WebViewProps {
 
 export function WebView({ url, title }: WebViewProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
 
-  // Reset loading state when URL changes
   useEffect(() => {
     setIsLoading(true);
   }, [url]);
 
   return (
     <div className="flex flex-col h-full bg-slate-50/30 overflow-hidden relative">
-      {/* Mini-controls overlay for WebView (Refreshing only) */}
       <div className="absolute top-4 right-4 z-20 flex gap-2">
         <Button 
           variant="secondary" 
@@ -27,7 +27,7 @@ export function WebView({ url, title }: WebViewProps) {
           className="h-8 px-3 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-emerald-600 hover:bg-white"
           onClick={() => {
             const iframe = document.getElementById('web-frame') as HTMLIFrameElement;
-            if (iframe) iframe.src = url;
+            if (iframe) iframe.src = fullUrl;
           }}
         >
           <RefreshCw className="w-3 h-3 mr-2" />
@@ -53,7 +53,7 @@ export function WebView({ url, title }: WebViewProps) {
         
         <iframe 
           id="web-frame"
-          src={url} 
+          src={fullUrl} 
           className="w-full h-full border-0 bg-white shadow-inner"
           onLoad={() => setIsLoading(false)}
           loading="lazy"

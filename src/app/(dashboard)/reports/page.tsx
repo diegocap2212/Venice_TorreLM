@@ -1,6 +1,8 @@
 import { MaterialList } from "@/components/reports/material-list";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function ReportsPage() {
   let materials: any[] = [];
 

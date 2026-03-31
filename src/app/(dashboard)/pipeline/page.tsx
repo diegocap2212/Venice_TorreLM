@@ -2,6 +2,8 @@ import { KanbanBoard } from "@/components/kanban/kanban-board";
 import { CreateVagaDialog } from "@/components/kanban/create-vaga-dialog";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function PipelinePage({ 
   searchParams 
 }: { 

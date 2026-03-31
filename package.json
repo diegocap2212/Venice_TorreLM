@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_TELEMETRY_DISABLED=1 npm run wow:install && npm run wow:build && next build",
+    "build": "npm run wow:install && npm run wow:build && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "wow:install": "cd my-process-portal && npm ci --no-audit --loglevel=error",
-    "wow:build": "cd my-process-portal && npm run build && mkdir -p ../public/wow && cp -rv dist/* ../public/wow/"
+    "wow:install": "cd my-process-portal && npm install --include=dev --no-audit --loglevel=error",
+    "wow:build": "cd my-process-portal && npm run build && cp -r dist/* ../public/wow/"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
