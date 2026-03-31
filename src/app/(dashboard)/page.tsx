@@ -1,6 +1,8 @@
 import { HomeDashboard } from "@/components/dashboard/home-dashboard";
 import { getCachedDashboardData } from "@/lib/cache-utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);

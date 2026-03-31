@@ -1,6 +1,8 @@
 import { ColaboradoresTable } from "@/components/colaboradores/colaboradores-table";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function ColaboradoresPage() {
   let colaboradores: any[] = [];
 

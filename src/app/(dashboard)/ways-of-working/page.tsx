@@ -1,5 +1,7 @@
 import { WebView } from "@/components/shared/webview";
 
+export const dynamic = "force-dynamic";
+
 export default function WaysOfWorkingPage() {
   return (
     <div className="h-full animate-in fade-in duration-500">
