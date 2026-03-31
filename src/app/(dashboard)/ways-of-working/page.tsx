@@ -16,7 +16,7 @@ export default function WaysOfWorkingPage() {
       
       <div className="flex-1 min-h-[600px] rounded-3xl overflow-hidden border border-slate-200 shadow-2xl shadow-slate-200/50 bg-white">
         <WebView 
-          url="https://1d39751b-e457-4f9a-bec5-fd922682dcf7.lovable.app" 
+          url="https://portal-my-way.lovable.app" 
           title="Ways of Working" 
         />
       </div>

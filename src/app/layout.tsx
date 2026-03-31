@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.className} bg-slate-50 antialiased`}>
+      <body className={`${inter.className} antialiased`}>
         <AuthProvider>
           <RoleProvider>
             <div className="h-screen w-screen overflow-hidden">

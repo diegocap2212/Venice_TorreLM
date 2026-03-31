@@ -23,7 +23,7 @@ export const authConfig = {
 
       // Restrição de Acesso para Scrum Masters (SM)
       if (isLoggedIn && (auth.user as any).role === "SM") {
-        const allowedPaths = ["/ways-of-working", "/cone-locavia", "/api/wow"]
+        const allowedPaths = ["/ways-of-working", "/cone-locavia"]
         const isAllowed = allowedPaths.some(path => nextUrl.pathname.startsWith(path)) || nextUrl.pathname.startsWith("/_next")
         
         if (nextUrl.pathname === "/") {

@@ -14,9 +14,11 @@ export function WebView({ url, title }: WebViewProps) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
 
+  // Use a key on the iframe based on fullUrl to force re-render and trigger onLoad
+  // This automatically resets the loading state effectively when the URL changes.
   useEffect(() => {
     setIsLoading(true);
-  }, [url]);
+  }, [fullUrl, setIsLoading]);
 
   return (
     <div className="flex flex-col h-full bg-slate-50/30 overflow-hidden relative">
