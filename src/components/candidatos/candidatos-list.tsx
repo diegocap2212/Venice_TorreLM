@@ -94,7 +94,7 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
 
       {/* Tabela */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1.5fr_auto] text-[10px] font-black uppercase tracking-widest text-slate-400 px-6 py-3 border-b border-slate-100 bg-slate-50/50">
+        <div className="grid grid-cols-[2fr_1.2fr_1.2fr_1.5fr_auto] gap-4 items-center text-[10px] font-black uppercase tracking-widest text-slate-400 px-6 py-3 border-b border-slate-100 bg-slate-50/50">
           <span>Candidato</span>
           <span>Status CPF</span>
           <span>Contato</span>
@@ -117,7 +117,7 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
               return (
                 <div
                   key={candidato.id}
-                  className="grid grid-cols-[2fr_1fr_1fr_1.5fr_auto] items-center px-6 py-4 hover:bg-slate-50/50 transition-colors"
+                  className="grid grid-cols-[2fr_1.2fr_1.2fr_1.5fr_auto] gap-4 items-start px-6 py-4 hover:bg-slate-50/50 transition-colors"
                 >
                   {/* Nome */}
                   <div className="flex items-center gap-3">
