@@ -104,9 +104,9 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
       <div className="bg-white/80 backdrop-blur-xl rounded-[32px] border border-border/40 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] overflow-hidden relative z-10">
         <div className="grid grid-cols-[2.5fr_1.5fr_1.5fr_2fr_auto] gap-4 items-center text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 px-8 py-5 border-b border-border/50 bg-slate-50/50">
           <span>Candidato</span>
-          <span>Status CPF</span>
-          <span>Contato</span>
-          <span>Vagas Vinculadas</span>
+          <span className="text-center">Status CPF</span>
+          <span className="text-center">Contato</span>
+          <span className="text-center">Vagas Vinculadas</span>
           <span className="text-right">Ações</span>
         </div>
 
@@ -139,13 +139,13 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
                   </div>
 
                   {/* Status CPF — sempre mascarado */}
-                  <div className="flex flex-col gap-1.5 justify-center">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cpfConfig.color} w-fit shadow-sm`}>
+                  <div className="flex flex-col gap-1.5 items-center text-center">
+                    <span className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cpfConfig.color} w-fit shadow-sm`}>
                       <StatusIcon className="w-3 h-3" />
                       {cpfConfig.label}
                     </span>
                     {candidato.cpf_masked && (
-                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold ml-1">
+                      <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-bold ml-1">
                         <Shield className="w-2.5 h-2.5" />
                         <span className="font-mono tracking-widest">{candidato.cpf_masked}</span>
                       </div>
@@ -153,14 +153,14 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
                   </div>
 
                   {/* Contato */}
-                  <div className="flex flex-col gap-1 justify-center">
+                  <div className="flex flex-col gap-1 items-center text-center">
                     <p className="text-xs font-semibold text-slate-600">{candidato.telefone || "—"}</p>
                     {candidato.linkedin && (
                       <a
                         href={candidato.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-1 group/link"
+                        className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-1 group/link"
                       >
                         LinkedIn <ExternalLink className="w-2.5 h-2.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                       </a>
@@ -168,7 +168,7 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
                   </div>
 
                   {/* Vagas */}
-                  <div className="flex flex-wrap gap-1.5 items-center">
+                  <div className="flex flex-wrap gap-1.5 items-center justify-center text-center">
                     {candidato.vagas.slice(0, 2).map((vc: any) => (
                       <span
                         key={vc.vaga.id}
