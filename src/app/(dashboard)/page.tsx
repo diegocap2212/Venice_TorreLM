@@ -27,7 +27,10 @@ export default async function HomePage() {
       contratacoesMes,
       demissoesMes,
       vagasData,
-      allAtivosSquads
+      allAtivosSquads,
+      headcountPorTorre,
+      totalHorasExtras,
+      followupsPendentes
     } = await getCachedDashboardData(firstDayOfMonth, lastDayOfMonth);
 
     // Processamento leve em memória para filtros complexos
@@ -59,7 +62,10 @@ export default async function HomePage() {
       demissoesMes,
       vagasRecrutamento,
       vagasOnboarding,
-      headcountPorSquad
+      headcountPorSquad,
+      headcountPorTorre,
+      totalHorasExtras,
+      followupsPendentes
     };
 
   } catch (err) {
