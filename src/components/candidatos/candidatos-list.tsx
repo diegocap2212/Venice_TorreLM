@@ -55,36 +55,44 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 relative">
+      {/* Decorative Glow */}
+      <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Total de Candidatos", value: totais.total, color: "text-slate-800", bg: "bg-white" },
-          { label: "CPF Pendente", value: totais.pendentes, color: "text-amber-700", bg: "bg-amber-50" },
-          { label: "CPF Aprovado", value: totais.aprovados, color: "text-emerald-700", bg: "bg-emerald-50" },
-          { label: "Reprovados", value: totais.reprovados, color: "text-rose-700", bg: "bg-rose-50" },
+          { label: "Total de Candidatos", value: totais.total, color: "text-slate-800", bg: "bg-white/60", iconColor: "bg-slate-100 text-slate-600" },
+          { label: "CPF Pendente", value: totais.pendentes, color: "text-amber-700", bg: "bg-white/60 bg-amber-50/20", iconColor: "bg-amber-100 text-amber-700" },
+          { label: "CPF Aprovado", value: totais.aprovados, color: "text-emerald-700", bg: "bg-white/60 bg-emerald-50/20", iconColor: "bg-emerald-100 text-emerald-700" },
+          { label: "Reprovados", value: totais.reprovados, color: "text-rose-700", bg: "bg-white/60 bg-rose-50/20", iconColor: "bg-rose-100 text-rose-700" },
         ].map((kpi) => (
-          <div key={kpi.label} className={`${kpi.bg} rounded-2xl border border-slate-100 p-5 shadow-sm`}>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{kpi.label}</p>
-            <p className={`text-4xl font-black ${kpi.color}`}>{kpi.value}</p>
+          <div key={kpi.label} className={`${kpi.bg} backdrop-blur-xl rounded-[24px] border border-border/40 p-6 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col justify-between`}>
+            <div className="flex items-center justify-between mb-2">
+               <p className="text-[10px] font-black uppercase tracking-widest text-foreground/40">{kpi.label}</p>
+               <div className={`p-1.5 rounded-lg ${kpi.iconColor}`}>
+                  <UserRound className="w-3.5 h-3.5" />
+               </div>
+            </div>
+            <p className={`text-5xl font-black tracking-tighter ${kpi.color}`}>{kpi.value}</p>
           </div>
         ))}
       </div>
 
       {/* Barra de ações */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-[24px] bg-white/60 backdrop-blur-xl border border-border/40 shadow-sm relative z-10">
+        <div className="relative w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             placeholder="Buscar por nome ou e-mail..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-9 rounded-xl border-slate-200 bg-white"
+            className="pl-9 h-11 rounded-xl border-slate-200 bg-white shadow-inner"
           />
         </div>
         <Button
           onClick={() => setDialogOpen(true)}
-          className="rounded-xl gap-2 bg-primary hover:bg-primary/90 font-bold"
+          className="rounded-xl h-11 px-6 gap-2 bg-primary hover:bg-primary/90 font-bold shadow-md shadow-primary/20 w-full sm:w-auto"
           id="btn-add-candidato"
         >
           <Plus className="w-4 h-4" />
@@ -93,23 +101,23 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="grid grid-cols-[2fr_1.2fr_1.2fr_1.5fr_auto] gap-4 items-center text-[10px] font-black uppercase tracking-widest text-slate-400 px-6 py-3 border-b border-slate-100 bg-slate-50/50">
+      <div className="bg-white/80 backdrop-blur-xl rounded-[32px] border border-border/40 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] overflow-hidden relative z-10">
+        <div className="grid grid-cols-[2.5fr_1.5fr_1.5fr_2fr_auto] gap-4 items-center text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 px-8 py-5 border-b border-border/50 bg-slate-50/50">
           <span>Candidato</span>
           <span>Status CPF</span>
           <span>Contato</span>
           <span>Vagas Vinculadas</span>
-          <span>Ações</span>
+          <span className="text-right">Ações</span>
         </div>
 
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-            <UserRound className="w-10 h-10 mb-3 opacity-30" />
-            <p className="font-semibold text-sm">Nenhum candidato encontrado</p>
-            <p className="text-xs mt-1">Clique em "Novo Candidato" para adicionar</p>
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <UserRound className="w-12 h-12 mb-4 opacity-30 text-primary" />
+            <p className="font-bold text-base text-foreground/60">Nenhum candidato encontrado</p>
+            <p className="text-sm mt-1 text-foreground/40">Clique em "Novo Candidato" para adicionar</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-border/30">
             {filtered.map((candidato) => {
               const cpfConfig = CPF_STATUS_CONFIG[candidato.status_cpf as keyof typeof CPF_STATUS_CONFIG] || CPF_STATUS_CONFIG.PENDENTE
               const StatusIcon = cpfConfig.icon
@@ -117,75 +125,75 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
               return (
                 <div
                   key={candidato.id}
-                  className="grid grid-cols-[2fr_1.2fr_1.2fr_1.5fr_auto] gap-4 items-start px-6 py-4 hover:bg-slate-50/50 transition-colors"
+                  className="grid grid-cols-[2.5fr_1.5fr_1.5fr_2fr_auto] gap-4 items-center px-8 py-5 hover:bg-white transition-all duration-300 group"
                 >
                   {/* Nome */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-black text-sm shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600 font-black text-sm shrink-0 border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
                       {candidato.nome.charAt(0)}
                     </div>
-                    <div>
-                      <p className="font-bold text-sm text-slate-800">{candidato.nome}</p>
-                      <p className="text-[10px] text-slate-400">{candidato.email || "—"}</p>
+                    <div className="overflow-hidden">
+                      <p className="font-bold text-sm text-slate-800 truncate">{candidato.nome}</p>
+                      <p className="text-[10px] text-slate-400 font-medium truncate">{candidato.email || "—"}</p>
                     </div>
                   </div>
 
                   {/* Status CPF — sempre mascarado */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${cpfConfig.color} w-fit`}>
+                  <div className="flex flex-col gap-1.5 justify-center">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cpfConfig.color} w-fit shadow-sm`}>
                       <StatusIcon className="w-3 h-3" />
                       {cpfConfig.label}
                     </span>
                     {candidato.cpf_masked && (
-                      <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold ml-1">
                         <Shield className="w-2.5 h-2.5" />
-                        <span className="font-mono">{candidato.cpf_masked}</span>
+                        <span className="font-mono tracking-widest">{candidato.cpf_masked}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Contato */}
-                  <div className="flex flex-col gap-0.5">
-                    <p className="text-xs font-medium text-slate-600">{candidato.telefone || "—"}</p>
+                  <div className="flex flex-col gap-1 justify-center">
+                    <p className="text-xs font-semibold text-slate-600">{candidato.telefone || "—"}</p>
                     {candidato.linkedin && (
                       <a
                         href={candidato.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[10px] text-blue-500 hover:underline flex items-center gap-1"
+                        className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-1 group/link"
                       >
-                        LinkedIn <ExternalLink className="w-2.5 h-2.5" />
+                        LinkedIn <ExternalLink className="w-2.5 h-2.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                       </a>
                     )}
                   </div>
 
                   {/* Vagas */}
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 items-center">
                     {candidato.vagas.slice(0, 2).map((vc: any) => (
                       <span
                         key={vc.vaga.id}
-                        className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200"
+                        className="text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200"
                       >
                         {vc.vaga.titulo.substring(0, 25)}{vc.vaga.titulo.length > 25 ? "…" : ""}
                       </span>
                     ))}
                     {candidato.vagas.length > 2 && (
-                      <span className="text-[9px] text-slate-400 font-bold">+{candidato.vagas.length - 2}</span>
+                      <span className="text-[9px] text-slate-400 font-black px-1">+{candidato.vagas.length - 2}</span>
                     )}
-                    {candidato.vagas.length === 0 && <span className="text-[10px] text-slate-300">Sem vaga</span>}
+                    {candidato.vagas.length === 0 && <span className="text-[10px] font-bold text-slate-300 italic">Sem vaga vinculada</span>}
                   </div>
 
                   {/* Ações CPF */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-end gap-2">
                     {candidato.status_cpf !== "APROVADO" && (
                       <Button
                         variant="ghost"
                         size="sm"
                         disabled={updatingCPF === candidato.id}
                         onClick={() => handleUpdateCPF(candidato.id, "APROVADO")}
-                        className="h-7 px-2.5 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                        className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-emerald-600 hover:bg-emerald-50 rounded-xl"
                       >
-                        Aprovar CPF
+                        Aprovar
                       </Button>
                     )}
                     {candidato.status_cpf !== "REPROVADO" && (
@@ -194,7 +202,7 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
                         size="sm"
                         disabled={updatingCPF === candidato.id}
                         onClick={() => handleUpdateCPF(candidato.id, "REPROVADO")}
-                        className="h-7 px-2.5 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg"
+                        className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-rose-600 hover:bg-rose-50 rounded-xl"
                       >
                         Reprovar
                       </Button>

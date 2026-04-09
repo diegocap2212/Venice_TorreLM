@@ -21,8 +21,8 @@ async function sync() {
   }
 
   const buffer = fs.readFileSync(CSV_PATH);
-  // Detectando encoding: tenta UTF-8, se falhar ou der caracteres estranhos, o fallback para Windows-1252 seria manual
-  const content = buffer.toString('utf-8'); 
+  // Utilizando latin1 (ISO-8859-1) pois planilhas do Excel baixadas via SharePoint costumam ter esse encoding
+  const content = buffer.toString('latin1'); 
   
   const lines = content.split('\n');
   const headers = lines[0].split(';').map(h => h.trim().replace(/^\"|\"$/g, ''));
