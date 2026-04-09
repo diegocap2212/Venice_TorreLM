@@ -22,7 +22,6 @@ interface NavItem {
 export function Sidebar() {
   const { data: session } = useSession()
   const pathname = usePathname()
-  const router = useRouter()
   const [pipelineOpen, setPipelineOpen] = useState(false)
 
   useEffect(() => {
@@ -42,6 +41,12 @@ export function Sidebar() {
       href: "/",
     },
     {
+      id: "candidatos",
+      label: "Candidatos & Vagas",
+      icon: UserRound,
+      href: "/candidatos",
+    },
+    {
       id: "pipeline",
       label: "Pipeline",
       icon: Briefcase,
@@ -51,22 +56,16 @@ export function Sidebar() {
       ]
     },
     {
-      id: "candidatos",
-      label: "Candidatos",
-      icon: UserRound,
-      href: "/candidatos",
+      id: "pos-admissao",
+      label: "Pós-Admissão",
+      icon: ClipboardCheck,
+      href: "/pos-admissao",
     },
     {
       id: "colaboradores",
       label: "Colaboradores",
       icon: Users,
       href: "/colaboradores",
-    },
-    {
-      id: "pos-admissao",
-      label: "Pós-Admissão",
-      icon: ClipboardCheck,
-      href: "/pos-admissao",
     },
     {
       id: "performance",
@@ -138,17 +137,17 @@ export function Sidebar() {
                           : false)
 
                       return (
-                        <button
+                        <Link
                           key={child.href}
                           id={`nav-pipeline-${tabName}`}
-                          onClick={() => router.push(child.href)}
+                          href={child.href}
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[11px] font-bold transition-all ${
                             tabActive ? "text-foreground bg-white shadow-sm border border-border/30" : "text-foreground/40 hover:text-foreground/70"
                           }`}
                         >
                           <div className={`w-1.5 h-1.5 rounded-full ${child.color} ${tabActive ? "scale-125 shadow-sm" : "opacity-40"}`} />
                           {child.label}
-                        </button>
+                        </Link>
                       )
                     })}
                   </div>
@@ -161,10 +160,10 @@ export function Sidebar() {
           const active = isActive(item.href!)
 
           return (
-            <button
+            <Link
               key={item.id}
               id={`nav-${item.id}`}
-              onClick={() => router.push(item.href!)}
+              href={item.href!}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
                 active
                   ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50"
@@ -184,7 +183,7 @@ export function Sidebar() {
                   {item.badge}
                 </span>
               )}
-            </button>
+            </Link>
           )
         })}
       </div>

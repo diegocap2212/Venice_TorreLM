@@ -37,11 +37,15 @@ import {
   Mail,
   Search,
   Filter,
-  X
+  X,
+  Clock,
+  MessageSquare
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ColaboradorDrawer } from "./colaborador-drawer";
+import { HoraExtraModal } from "./hora-extra-modal";
+import { FollowupModal } from "./followup-modal";
 import { deleteColaborador } from "@/app/actions/colaborador-actions";
 
 interface Colaborador {
@@ -65,6 +69,8 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
   const [data, setData] = useState(initialData);
   const [selectedColab, setSelectedColab] = useState<Colaborador | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedHoraExtraColab, setSelectedHoraExtraColab] = useState<Colaborador | null>(null);
+  const [selectedFollowupColab, setSelectedFollowupColab] = useState<Colaborador | null>(null);
   
   // Estados de filtro
   const [searchTerm, setSearchTerm] = useState("");
@@ -277,6 +283,20 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                         Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem 
+                        onClick={() => setSelectedHoraExtraColab(colab)}
+                        className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-slate-600 hover:bg-slate-50"
+                      >
+                        <Clock className="w-3.5 h-3.5" />
+                        Lançar H. Extra
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setSelectedFollowupColab(colab)}
+                        className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-slate-600 hover:bg-slate-50"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Follow-up
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
                         onClick={() => handleDelete(colab.id)}
                         className="text-[10px] font-black uppercase tracking-widest py-2 px-3 rounded-lg cursor-pointer flex items-center gap-2 text-red-600 hover:bg-red-50"
                       >
@@ -300,6 +320,18 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
           setIsDrawerOpen(false);
           setSelectedColab(null);
         }}
+      />
+
+      <HoraExtraModal 
+        colaborador={selectedHoraExtraColab}
+        isOpen={!!selectedHoraExtraColab}
+        onClose={() => setSelectedHoraExtraColab(null)}
+      />
+
+      <FollowupModal 
+        colaborador={selectedFollowupColab}
+        isOpen={!!selectedFollowupColab}
+        onClose={() => setSelectedFollowupColab(null)}
       />
     </div>
   );

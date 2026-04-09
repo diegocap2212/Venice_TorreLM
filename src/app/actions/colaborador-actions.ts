@@ -58,6 +58,43 @@ export async function deleteColaborador(id: string) {
   revalidatePath("/");
 }
 
+export async function createHoraExtra(data: {
+  colaborador_id: string;
+  mes_referencia: string;
+  horas: number;
+  observacao?: string;
+}) {
+  const result = await prisma.horaExtra.create({
+    data: {
+      colaborador_id: data.colaborador_id,
+      mes_referencia: data.mes_referencia,
+      horas: data.horas,
+      observacao: data.observacao,
+    }
+  });
+  revalidatePath("/");
+  return result;
+}
+
+export async function createFollowup(data: {
+  colaborador_id: string;
+  tipo: string;
+  data_prevista: Date;
+  notas?: string;
+}) {
+  const result = await prisma.followUp.create({
+    data: {
+      colaborador_id: data.colaborador_id,
+      tipo: data.tipo,
+      data_prevista: data.data_prevista,
+      notas: data.notas,
+    }
+  });
+  revalidatePath("/");
+  return result;
+}
+
+
 // Seed function for the initial image data
 export async function seedColaboradores() {
   const data = [
