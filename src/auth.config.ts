@@ -11,30 +11,19 @@ export const authConfig = {
       const isLoginPage = nextUrl.pathname === "/login"
       const isAuthApi = nextUrl.pathname.startsWith("/api/auth")
 
+      // APIs de auth são sempre públicas
       if (isAuthApi) return true
 
+      // Redirecionar não-autenticados para login
       if (!isLoggedIn && !isLoginPage) {
-        return false // Redireciona para login
+        return false
       }
-      
+
+      // Redirecionar autenticados da página de login para home
       if (isLoggedIn && isLoginPage) {
         return Response.redirect(new URL("/", nextUrl))
       }
 
-      // Restrição de Acesso para Scrum Masters (SM)
-      if (isLoggedIn && (auth.user as any).role === "SM") {
-        const allowedPaths = ["/ways-of-working", "/cone-locavia"]
-        const isAllowed = allowedPaths.some(path => nextUrl.pathname.startsWith(path)) || nextUrl.pathname.startsWith("/_next")
-        
-        if (nextUrl.pathname === "/") {
-          return Response.redirect(new URL("/ways-of-working", nextUrl))
-        }
-
-        if (!isAllowed) {
-          return Response.redirect(new URL("/ways-of-working", nextUrl)) // Ou uma página de acesso negado
-        }
-      }
-      
       return true
     },
     async jwt({ token, user }) {

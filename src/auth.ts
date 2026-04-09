@@ -5,6 +5,16 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { authConfig } from "./auth.config"
 
+// ─── WHITELIST LGPD ──────────────────────────────────────────────────────────
+// Apenas estes 3 usuários têm acesso ao sistema BP Hub.
+// Qualquer outro email — mesmo que do domínio venice — é rejeitado.
+const AUTHORIZED_EMAILS = [
+  "diego.caporusso@venicetech.com.br",
+  "leticia.almeida@venicetech.com.br",
+  "lucas.rodrigues@venicetech.com.br",
+] as const
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma) as any,
@@ -20,55 +30,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        const email = credentials.email as string
+        const email = (credentials.email as string).toLowerCase().trim()
         const password = credentials.password as string
 
-        // Rigorosa validação de domínio Venice
-        const allowedDomains = ["@venicetech.com.br", "@venice.com.br"]
-        const userEmail = email.toLowerCase()
-        const isVeniceDomain = allowedDomains.some(domain => userEmail.endsWith(domain))
-
-        if (!isVeniceDomain) {
-          throw new Error(`Acesso restrito ao domínio corporativo Venice`)
+        // Rejeitar qualquer email fora da whitelist
+        if (!(AUTHORIZED_EMAILS as readonly string[]).includes(email)) {
+          throw new Error("Acesso não autorizado. Este sistema é restrito à equipe de Gestão de Contas.")
         }
 
-        // Master Password check
-        const masterPassword = process.env.VENICE_MASTER_PASSWORD || "Venice2026!"
-        const isMasterPassword = password === masterPassword
+        // Buscar usuário — deve existir previamente, sem auto-criação
+        const user = await prisma.user.findUnique({ where: { email } }) as any
 
-        let user = await prisma.user.findUnique({
-          where: { email: userEmail }
-        }) as any
-
-        // Se o usuário não existir e a senha fornecida for a Master, criamos a conta (First Login Setup)
-        if (!user && isMasterPassword) {
-          const domainParts = userEmail.split('@')[0].split('.');
-          const inferredName = domainParts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
-
-          const smEmails: string[] = [] // Lista de emails enviada pelo usuário futuramente
-          const inferredRole = smEmails.includes(userEmail) ? "SM" : "BP"
-
-          user = await prisma.user.create({
-            data: {
-              email: userEmail,
-              name: inferredName,
-              role: inferredRole,
-              password: await bcrypt.hash(masterPassword, 10)
-            }
-          })
-          
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          }
-        }
-
-        // Removido bypass de Master Password para usuários que já existem.
-        // A senha fornecida DEVE ser validada pelo hash armazenado no banco de dados.
         if (!user || !user.password) {
-          return null
+          throw new Error("Conta não encontrada. Entre em contato com o administrador do sistema.")
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password)
@@ -88,6 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60, // Sessão expira em 8 horas (jornada de trabalho)
   },
   secret: process.env.AUTH_SECRET,
 })

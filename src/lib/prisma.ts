@@ -4,7 +4,12 @@ import { PrismaClient } from "@prisma/client";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+// Forçar nova instância em dev sempre que o schema muda
+// Em produção, mantemos o singleton para eficiência de conexão
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
 
 const createPrismaClient = () => {
   const pool = new Pool({ connectionString });
@@ -12,6 +17,8 @@ const createPrismaClient = () => {
   return new PrismaClient({ adapter, log: ["error"] });
 };
 
-export const prisma = globalForPrisma.prisma || createPrismaClient();
+export const prisma = global.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}

@@ -1,168 +1,194 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Target, 
-  ChevronDown, 
-  Briefcase, 
-  ShieldCheck, 
-  ClipboardList,
-  LogOut
-} from "lucide-react";
-import { useRole } from "@/components/providers/role-provider";
-import { useSession, signOut } from "next-auth/react";
-import { useState, useEffect } from "react";
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import {
+  LayoutDashboard, Users, Briefcase, ChevronDown, UserRound,
+  ClipboardCheck, TrendingUp, ShieldCheck, ClipboardList, LogOut, Target
+} from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import { useState, useEffect } from "react"
+
+interface NavItem {
+  id: string
+  label: string
+  icon: React.ElementType
+  href?: string
+  children?: { label: string; href: string; color?: string }[]
+  badge?: number
+  badgeAlert?: boolean
+}
 
 export function Sidebar() {
-  const { data: session } = useSession();
-  const pathname = usePathname();
-  const router = useRouter();
-  const { role } = useRole();
-
-  const currentView = pathname === "/" ? "home" : pathname.replace("/", "");
-  // Se estivermos em pipeline, pegamos a tab da URL (ou recrutamento por padrão)
-  // Como simplificamos e separamos as rotas, se a gente quiser tabs no pipeline, 
-  // ela continua por query string na rota /pipeline, ou você pode quebrar em rotas aninhadas
-  const currentTab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get("tab") || "recrutamento" : "recrutamento";
-  
-  const [pipelineOpen, setPipelineOpen] = useState(currentView === "pipeline");
-
-  // Feature Flag para funcionalidade futura
-  const showPipeline = false;
+  const { data: session } = useSession()
+  const pathname = usePathname()
+  const router = useRouter()
+  const [pipelineOpen, setPipelineOpen] = useState(false)
 
   useEffect(() => {
-    if (currentView === "pipeline") setPipelineOpen(true);
-  }, [currentView]);
+    if (pathname.startsWith("/pipeline")) setPipelineOpen(true)
+  }, [pathname])
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/"
+    return pathname.startsWith(href)
+  }
+
+  const navItems: NavItem[] = [
+    {
+      id: "home",
+      label: "Visão Geral",
+      icon: LayoutDashboard,
+      href: "/",
+    },
+    {
+      id: "pipeline",
+      label: "Pipeline",
+      icon: Briefcase,
+      children: [
+        { label: "Recrutamento", href: "/pipeline?tab=recrutamento", color: "bg-emerald-500" },
+        { label: "Onboarding", href: "/pipeline?tab=onboarding", color: "bg-orange-500" },
+      ]
+    },
+    {
+      id: "candidatos",
+      label: "Candidatos",
+      icon: UserRound,
+      href: "/candidatos",
+    },
+    {
+      id: "colaboradores",
+      label: "Colaboradores",
+      icon: Users,
+      href: "/colaboradores",
+    },
+    {
+      id: "pos-admissao",
+      label: "Pós-Admissão",
+      icon: ClipboardCheck,
+      href: "/pos-admissao",
+    },
+    {
+      id: "performance",
+      label: "Performance",
+      icon: TrendingUp,
+      href: "/performance",
+    },
+    {
+      id: "reports",
+      label: "Repositório",
+      icon: ShieldCheck,
+      href: "/reports",
+    },
+    {
+      id: "ways-of-working",
+      label: "Ways of Working",
+      icon: Target,
+      href: "/ways-of-working",
+    },
+    {
+      id: "cone-locavia",
+      label: "Cone Locavia",
+      icon: ClipboardList,
+      href: "/cone-locavia",
+    },
+  ]
 
   return (
     <aside className="w-72 bg-background border-r border-border flex flex-col h-full overflow-hidden transition-all duration-300 relative">
-      {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pt-6 pb-24 px-4 space-y-1">
 
-        {/* Dashboard Home */}
-        <button
-          onClick={() => router.push("/")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
-            currentView === "home" 
-              ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
-              : "text-foreground/50 hover:text-foreground hover:bg-white/60"
-          }`}
-        >
-          <div className={`p-2 rounded-lg transition-all duration-500 ${currentView === "home" ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"}`}>
-            <LayoutDashboard className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-black uppercase tracking-wider">Visão Geral</span>
-        </button>
+        {navItems.map(item => {
+          const Icon = item.icon
 
-        {/* Pipeline & Onboarding Group */}
-        {showPipeline && (
-          <div className="space-y-1">
+          // Item com sub-menu (Pipeline)
+          if (item.children) {
+            const isParentActive = pathname.startsWith("/pipeline")
+
+            return (
+              <div key={item.id} className="space-y-1">
+                <button
+                  id={`nav-${item.id}`}
+                  onClick={() => setPipelineOpen(!pipelineOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group ${
+                    isParentActive
+                      ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50"
+                      : "text-foreground/50 hover:text-foreground hover:bg-white/60"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg transition-all duration-500 ${
+                      isParentActive ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-black uppercase tracking-wider">{item.label}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${pipelineOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {pipelineOpen && (
+                  <div className="ml-10 pr-2 space-y-0.5 animate-in slide-in-from-top-2 duration-300">
+                    {item.children.map(child => {
+                      // Detectar tab ativa pela query string
+                      const tabName = child.href.split("tab=")[1]
+                      const tabActive = isParentActive &&
+                        (typeof window !== "undefined"
+                          ? new URLSearchParams(window.location.search).get("tab") === tabName
+                          : false)
+
+                      return (
+                        <button
+                          key={child.href}
+                          id={`nav-pipeline-${tabName}`}
+                          onClick={() => router.push(child.href)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[11px] font-bold transition-all ${
+                            tabActive ? "text-foreground bg-white shadow-sm border border-border/30" : "text-foreground/40 hover:text-foreground/70"
+                          }`}
+                        >
+                          <div className={`w-1.5 h-1.5 rounded-full ${child.color} ${tabActive ? "scale-125 shadow-sm" : "opacity-40"}`} />
+                          {child.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          // Item simples
+          const active = isActive(item.href!)
+
+          return (
             <button
-              onClick={() => setPipelineOpen(!pipelineOpen)}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group ${
-                currentView === "pipeline" 
-                  ? "bg-white text-emerald-700 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-100" 
-                  : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+              key={item.id}
+              id={`nav-${item.id}`}
+              onClick={() => router.push(item.href!)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
+                active
+                  ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50"
+                  : "text-foreground/50 hover:text-foreground hover:bg-white/60"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg transition-colors duration-300 ${currentView === "pipeline" ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"}`}>
-                  <Briefcase className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-black uppercase tracking-wider">Pipeline Gestão</span>
+              <div className={`p-2 rounded-lg transition-all duration-500 ${
+                active ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"
+              }`}>
+                <Icon className="w-4 h-4" />
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-500 ${pipelineOpen ? "rotate-180" : ""}`} />
+              <span className="text-[11px] font-black uppercase tracking-wider flex-1 text-left">{item.label}</span>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+                  item.badgeAlert ? "bg-rose-100 text-rose-600" : "bg-primary/10 text-primary"
+                }`}>
+                  {item.badge}
+                </span>
+              )}
             </button>
-
-            {pipelineOpen && (
-              <div className="ml-10 pr-2 space-y-1 animate-in slide-in-from-top-2 duration-500">
-                <button
-                  onClick={() => router.push("/pipeline?tab=recrutamento")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[11px] font-bold transition-all ${
-                    currentView === "pipeline" && currentTab === "recrutamento"
-                      ? "text-emerald-700 bg-emerald-50/50"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-                >
-                  <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentView === "pipeline" && currentTab === "recrutamento" ? "bg-emerald-500 scale-125 shadow-sm" : "bg-slate-200"}`} />
-                  Recrutamento
-                </button>
-                <button
-                  onClick={() => router.push("/pipeline?tab=onboarding")}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[11px] font-bold transition-all ${
-                    currentView === "pipeline" && currentTab === "onboarding"
-                      ? "text-orange-700 bg-orange-50/50"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-                >
-                  <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentView === "pipeline" && currentTab === "onboarding" ? "bg-orange-500 scale-125 shadow-sm" : "bg-slate-200"}`} />
-                  Onboarding
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        <button
-          onClick={() => router.push("/colaboradores")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
-            currentView === "colaboradores" 
-              ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
-              : "text-foreground/50 hover:text-foreground hover:bg-white/60"
-          }`}
-        >
-          <div className={`p-2 rounded-lg transition-all duration-500 ${currentView === "colaboradores" ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"}`}>
-            <Users className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-black uppercase tracking-wider">Colaboradores</span>
-        </button>
-
-        <button
-          onClick={() => router.push("/ways-of-working")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
-            currentView === "ways-of-working" 
-              ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
-              : "text-foreground/50 hover:text-foreground hover:bg-white/60"
-          }`}
-        >
-          <div className={`p-2 rounded-lg transition-all duration-500 ${currentView === "ways-of-working" ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"}`}>
-            <Target className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-black uppercase tracking-wider">Ways of Working</span>
-        </button>
-
-        <button
-          onClick={() => router.push("/cone-locavia")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
-            currentView === "cone-locavia" 
-              ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
-              : "text-foreground/50 hover:text-foreground hover:bg-white/60"
-          }`}
-        >
-          <div className={`p-2 rounded-lg transition-all duration-500 ${currentView === "cone-locavia" ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"}`}>
-            <ClipboardList className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-black uppercase tracking-wider">Cone Locavia</span>
-        </button>
-
-        <button
-          onClick={() => router.push("/reports")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 group ${
-            currentView === "reports" 
-              ? "bg-white text-foreground shadow-[0_4px_20px_-6px_rgba(0,0,0,0.08)] border border-border/50" 
-              : "text-foreground/50 hover:text-foreground hover:bg-white/60"
-          }`}
-        >
-          <div className={`p-2 rounded-lg transition-all duration-500 ${currentView === "reports" ? "bg-primary text-foreground shadow-md shadow-primary/20" : "bg-secondary text-foreground/40 group-hover:bg-secondary/80"}`}>
-            <ShieldCheck className="w-4 h-4" />
-          </div>
-          <span className="text-[11px] font-black uppercase tracking-wider">Repositório</span>
-        </button>
+          )
+        })}
       </div>
-      
+
       {/* Footer Profile */}
       <div className="absolute bottom-0 w-full p-6 border-t border-border bg-white/40 backdrop-blur-xl">
         <div className="flex items-center justify-between p-3 rounded-2xl bg-white/50 border border-border/50 shadow-sm transition-all duration-500 group hover:shadow-md">
@@ -175,15 +201,16 @@ export function Sidebar() {
               <span className="text-[11px] font-black text-foreground -mt-0.5 truncate">{session?.user?.name || "Usuário"}</span>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => signOut()}
             className="p-2 rounded-lg text-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-all duration-300 shrink-0"
             title="Sair do Sistema"
+            id="btn-signout"
           >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>
     </aside>
-  );
+  )
 }

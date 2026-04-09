@@ -9,124 +9,246 @@ datasource db {
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
-  password      String?   // Hashed password
+  password      String?
   name          String?
-  role          String    @default("BP")
+  role          String    @default("BP_ADMIN")
   vagas_criadas Vaga[]    @relation("CriadorVaga")
   vagas_atuais  Vaga[]    @relation("ResponsavelVaga")
   created_at    DateTime  @default(now())
 }
 
 model Vaga {
-  id               String    @id @default(uuid())
-  titulo           String
-  perfil_tipo      String
-  senioridade      String
-  aba_atual        String    @default("RECRUTAMENTO")
-  etapa_atual      String    @default("REQUISICAO")
-  urgencia         String    @default("NORMAL")
-  squad_destino    String
-  data_abertura    DateTime  @default(now())
-  data_etapa_atual DateTime  @default(now())
-  sla_dias         Int       @default(3)
-  briefing_handoff String?   
-  
-  responsavel_id   String
-  responsavel      User      @relation("ResponsavelVaga", fields: [responsavel_id], references: [id])
-  criado_por_id    String
-  criado_por       User      @relation("CriadorVaga", fields: [criado_por_id], references: [id])
-  
-  updated_at       DateTime  @updatedAt
+  id                      String                @id @default(uuid())
+  titulo                  String
+  perfil_tipo             String
+  senioridade             String
+  aba_atual               String                @default("RECRUTAMENTO")
+  etapa_atual             String                @default("REQUISICAO")
+  urgencia                String                @default("NORMAL")
+  squad_destino           String
+  data_abertura           DateTime              @default(now())
+  data_etapa_atual        DateTime              @default(now())
+  sla_dias                Int                   @default(3)
+  briefing_handoff        String?
+  bizneo_link             String?               // Link direto para a vaga no Bizneo
+  colaborador_contratado_id String?             // Colaborador gerado por esta vaga
+
+  responsavel_id          String
+  responsavel             User                  @relation("ResponsavelVaga", fields: [responsavel_id], references: [id])
+  criado_por_id           String
+  criado_por              User                  @relation("CriadorVaga", fields: [criado_por_id], references: [id])
+
+  candidatos              VagaCandidato[]
+  checklist_items         ChecklistItemStatus[]
+
+  updated_at              DateTime              @updatedAt
 }
+
+// ─── CANDIDATOS ──────────────────────────────────────────────────────────────
+
+model Candidato {
+  id          String          @id @default(uuid())
+  nome        String
+  cpf_hash    String?         @unique // SHA-256 do CPF para unicidade (sem exposição)
+  cpf_masked  String?                 // "***.***.456-**" para exibição segura
+  telefone    String?
+  email       String?
+  linkedin    String?
+  status_cpf  String          @default("PENDENTE") // PENDENTE | APROVADO | REPROVADO
+  observacoes String?
+
+  vagas       VagaCandidato[]
+
+  created_at  DateTime        @default(now())
+  updated_at  DateTime        @updatedAt
+}
+
+model VagaCandidato {
+  id           String    @id @default(uuid())
+  vaga_id      String
+  candidato_id String
+  status       String    @default("EM_PROCESSO") // EM_PROCESSO | APROVADO | REPROVADO | DESISTIU
+  vaga         Vaga      @relation(fields: [vaga_id], references: [id], onDelete: Cascade)
+  candidato    Candidato @relation(fields: [candidato_id], references: [id], onDelete: Cascade)
+  created_at   DateTime  @default(now())
+
+  @@unique([vaga_id, candidato_id])
+}
+
+// ─── CHECKLIST PERSISTIDO ────────────────────────────────────────────────────
+
+model ChecklistItemStatus {
+  id         String   @id @default(uuid())
+  vaga_id    String
+  etapa      String
+  item_index Int
+  concluido  Boolean  @default(false)
+  vaga       Vaga     @relation(fields: [vaga_id], references: [id], onDelete: Cascade)
+  updated_at DateTime @updatedAt
+
+  @@unique([vaga_id, etapa, item_index])
+}
+
+// ─── COLABORADORES ───────────────────────────────────────────────────────────
+
 model Colaborador {
-  id                   String    @id @default(uuid())
-  nome                 String
-  cargo                String
-  status               String    @default("Ativo")
-  data_admissao        DateTime
-  data_nascimento      DateTime
-  torre                String?
-  squad                String?
-  email                String?
-  data_desligamento    DateTime?
-  informacoes_internas String?
-  created_at           DateTime  @default(now())
-  updated_at           DateTime  @updatedAt
+  id                    String             @id @default(uuid())
+  nome                  String
+  cargo                 String
+  status                String             @default("Ativo")
+  data_admissao         DateTime
+  data_nascimento       DateTime
+  torre                 String?
+  squad                 String?
+  email                 String?
+  cpf_hash              String?            @unique // SHA-256 para unicidade LGPD
+  cpf_masked            String?                    // "***.***.456-**"
+  telefone              String?
+  linkedin              String?
+  vaga_origem_id        String?                    // Vaga que originou esta contratação
+  data_desligamento     DateTime?
+  informacoes_internas  String?
+
+  follow_ups            FollowUp[]
+  horas_extras          HoraExtra[]
+  ciclos_performance    CicloPerformance[]
+
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @updatedAt
 }
+
+// ─── PÓS-ADMISSÃO ────────────────────────────────────────────────────────────
+
+model FollowUp {
+  id              String      @id @default(uuid())
+  colaborador_id  String
+  tipo            String      // SEMANA_1 | MES_1 | FEEDBACK_45 | FEEDBACK_90
+  data_prevista   DateTime
+  data_realizado  DateTime?
+  status          String      @default("PENDENTE") // PENDENTE | REALIZADO | CANCELADO
+  notas           String?
+  colaborador     Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
+  created_at      DateTime    @default(now())
+}
+
+model HoraExtra {
+  id              String      @id @default(uuid())
+  colaborador_id  String
+  mes_referencia  String      // "2026-04" (YYYY-MM)
+  horas           Float
+  status          String      @default("PENDENTE") // PENDENTE | VALIDADO | ENVIADO
+  observacao      String?
+  colaborador     Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  @@unique([colaborador_id, mes_referencia])
+}
+
+// ─── CICLO DE PERFORMANCE ────────────────────────────────────────────────────
+
+model CicloPerformance {
+  id              String      @id @default(uuid())
+  colaborador_id  String
+  periodo         String      // "2026-S1" | "2026-S2"
+  tipo            String      // AUTOAVALIACAO | FEEDBACK_CLIENTE | PDI | PIP
+  status          String      @default("PENDENTE") // PENDENTE | EM_ANDAMENTO | CONCLUIDO
+  data_prevista   DateTime
+  data_realizado  DateTime?
+  conteudo        Json?       // Respostas do formulário estruturado
+  responsavel     String      @default("BP") // "BP" | "GESTOR_CONTAS"
+  colaborador     Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
+  created_at      DateTime    @default(now())
+}
+
+// ─── AUDIT LOG LGPD ──────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  user_email  String
+  acao        String   // CREATE | READ | UPDATE | DELETE
+  recurso     String   // "Candidato" | "Colaborador.cpf" | "FollowUp"
+  recurso_id  String?
+  detalhes    String?
+  ip          String?
+  created_at  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// ─── WAYS OF WORKING (existente, mantido) ────────────────────────────────────
 
 model Material {
-  id                String   @id @default(uuid())
-  titulo            String
-  descricao         String?
-  url               String
-  tipo              String   @default("Apresentação")
-  data_upload       DateTime @default(now())
-  created_at        DateTime @default(now())
+  id          String   @id @default(uuid())
+  titulo      String
+  descricao   String?
+  url         String
+  tipo        String   @default("Apresentação")
+  data_upload DateTime @default(now())
+  created_at  DateTime @default(now())
 }
 
-// --- Ways of Working Models (Migrated from Supabase) ---
-
 model WowReport {
-  id             String    @id @default(uuid())
-  sm             String
-  squad          String
-  date           String    // YYYY-MM-DD
-  cone           Boolean?
-  coneText       String?   @map("cone_text")
-  pdti           Boolean?
-  pdtiText       String?   @map("pdti_text")
-  parado         Boolean?
-  paradoText     String?   @map("parado_text")
-  wipEpic        Boolean?
-  wipEpicText    String?   @map("wip_epic_text")
-  wipUs          Boolean?
-  wipUsText      String?   @map("wip_us_text")
-  oQue           String?   @map("o_que")
-  problemas      String?
-  acoes          String?
-  images         Json?     // List of {data: string}
-  created_at     DateTime  @default(now())
-  
+  id         String   @id @default(uuid())
+  sm         String
+  squad      String
+  date       String
+  cone       Boolean?
+  coneText   String?  @map("cone_text")
+  pdti       Boolean?
+  pdtiText   String?  @map("pdti_text")
+  parado     Boolean?
+  paradoText String?  @map("parado_text")
+  wipEpic    Boolean?
+  wipEpicText String? @map("wip_epic_text")
+  wipUs      Boolean?
+  wipUsText  String?  @map("wip_us_text")
+  oQue       String?  @map("o_que")
+  problemas  String?
+  acoes      String?
+  images     Json?
+  created_at DateTime @default(now())
+
   @@map("wow_reports")
 }
 
 model WowWeeklyReport {
-  id             String    @id @default(uuid())
-  sm             String
-  week           String    // YYYY-Www
-  q1             String?
-  q2             String?
-  q3             String?
-  q4             String?
-  created_at     DateTime  @default(now())
+  id         String   @id @default(uuid())
+  sm         String
+  week       String
+  q1         String?
+  q2         String?
+  q3         String?
+  q4         String?
+  created_at DateTime @default(now())
 
   @@map("wow_weekly_reports")
 }
 
 model WowSquadReport {
-  id             String    @id @default(uuid())
-  sm             String
-  squad          String
-  week           String
-  notes          String?
-  q1             String?
-  q2             String?
-  q3             String?
-  q4             String?
-  created_at     DateTime  @default(now())
+  id         String   @id @default(uuid())
+  sm         String
+  squad      String
+  week       String
+  notes      String?
+  q1         String?
+  q2         String?
+  q3         String?
+  q4         String?
+  created_at DateTime @default(now())
 
   @@unique([sm, squad, week])
   @@map("wow_squad_reports")
 }
 
 model WowSquadOverride {
-  id             String    @id @default(uuid())
-  sm             String
-  squad          String
-  week           String
-  field          String
-  value          Float
-  created_at     DateTime  @default(now())
+  id         String   @id @default(uuid())
+  sm         String
+  squad      String
+  week       String
+  field      String
+  value      Float
+  created_at DateTime @default(now())
 
   @@unique([sm, squad, week, field])
   @@map("wow_squad_overrides")

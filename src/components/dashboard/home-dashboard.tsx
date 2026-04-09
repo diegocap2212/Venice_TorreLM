@@ -2,6 +2,7 @@
 
 import { Users, Cake, UserPlus, UserMinus, TrendingUp, Activity, Briefcase, BarChart2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
+import { TutorialPanel } from "@/components/dashboard/tutorial-panel";
 
 export interface DashboardData {
   totalAtivos: number;
@@ -152,6 +153,9 @@ export function HomeDashboard({ data }: DashboardProps) {
           </Card>
 
         </div>
+
+        {/* Tutorial / Como usar */}
+        <TutorialPanel />
 
         {/* Dynamic Data Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
