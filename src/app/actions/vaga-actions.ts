@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 
 export async function updateVagaEtapa(vagaId: string, novaEtapa: string) {
+  const session = await auth()
+  if (!session) return { success: false, error: "Não autenticado" }
+
   try {
     const vaga = await prisma.vaga.findUnique({ where: { id: vagaId } })
     if (!vaga) throw new Error("Vaga não encontrada")
@@ -27,6 +30,9 @@ export async function updateVagaEtapa(vagaId: string, novaEtapa: string) {
 }
 
 export async function updateBriefing(vagaId: string, briefing: string) {
+  const session = await auth()
+  if (!session) return { success: false, error: "Não autenticado" }
+
   try {
     await prisma.vaga.update({
       where: { id: vagaId },
@@ -41,6 +47,9 @@ export async function updateBriefing(vagaId: string, briefing: string) {
 }
 
 export async function updateBizneoLink(vagaId: string, bizneoLink: string) {
+  const session = await auth()
+  if (!session) return { success: false, error: "Não autenticado" }
+
   try {
     await prisma.vaga.update({
       where: { id: vagaId },
@@ -62,6 +71,9 @@ export async function toggleChecklistItem(
   item_index: number,
   concluido: boolean
 ) {
+  const session = await auth()
+  if (!session) return { success: false, error: "Não autenticado" }
+
   try {
     await prisma.checklistItemStatus.upsert({
       where: { vaga_id_etapa_item_index: { vaga_id, etapa, item_index } },
@@ -77,6 +89,9 @@ export async function toggleChecklistItem(
 }
 
 export async function getChecklistStatus(vaga_id: string, etapa: string) {
+  const session = await auth()
+  if (!session) return {}
+
   try {
     const items = await prisma.checklistItemStatus.findMany({
       where: { vaga_id, etapa }

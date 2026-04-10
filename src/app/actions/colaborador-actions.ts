@@ -2,8 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+import { auditLog } from "@/lib/audit";
 
 export async function getColaboradores() {
+  const session = await auth();
+  if (!session) return [];
+
   return await prisma.colaborador.findMany({
     orderBy: { nome: "asc" },
   });
@@ -21,9 +26,13 @@ export async function createColaborador(data: {
   data_desligamento?: Date;
   informacoes_internas?: string;
 }) {
+  const session = await auth();
+  if (!session) return { error: "Não autenticado" } as any;
+
   const colaborador = await prisma.colaborador.create({
     data,
   });
+  await auditLog("CREATE", "Colaborador", colaborador.id, `Colaborador criado: ${data.nome}`);
   revalidatePath("/");
   return colaborador;
 }
@@ -43,15 +52,23 @@ export async function updateColaborador(
     informacoes_internas: string;
   }>
 ) {
+  const session = await auth();
+  if (!session) return { error: "Não autenticado" } as any;
+
   const colaborador = await prisma.colaborador.update({
     where: { id },
     data,
   });
+  await auditLog("UPDATE", "Colaborador", id, `Colaborador atualizado: ${data.nome || id}`);
   revalidatePath("/");
   return colaborador;
 }
 
 export async function deleteColaborador(id: string) {
+  const session = await auth();
+  if (!session) return { error: "Não autenticado" };
+
+  await auditLog("DELETE", "Colaborador", id, "Colaborador removido");
   await prisma.colaborador.delete({
     where: { id },
   });

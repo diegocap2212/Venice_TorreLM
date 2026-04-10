@@ -102,117 +102,144 @@ export function CandidatosList({ initialData }: CandidatosListProps) {
 
       {/* Tabela */}
       <div className="bg-white/80 backdrop-blur-xl rounded-[32px] border border-border/40 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] overflow-hidden relative z-10">
-        <div className="grid grid-cols-[2.5fr_1.5fr_1.5fr_2fr_auto] gap-4 items-center text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 px-8 py-5 border-b border-border/50 bg-slate-50/50">
-          <span>Candidato</span>
-          <span className="text-center">Status CPF</span>
-          <span className="text-center">Contato</span>
-          <span className="text-center">Vagas Vinculadas</span>
-          <span className="text-right">Ações</span>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] table-fixed">
+            <colgroup>
+              <col className="w-[28%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+              <col className="w-[24%]" />
+              <col className="w-[16%]" />
+            </colgroup>
+            <thead>
+              <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 border-b border-border/50 bg-slate-50/50">
+                <th className="text-left px-8 py-5 font-black">Candidato</th>
+                <th className="text-center px-4 py-5 font-black">Status CPF</th>
+                <th className="text-center px-4 py-5 font-black">Contato</th>
+                <th className="text-center px-4 py-5 font-black">Vagas Vinculadas</th>
+                <th className="text-right px-8 py-5 font-black">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-20">
+                    <div className="flex flex-col items-center justify-center text-slate-400">
+                      <UserRound className="w-12 h-12 mb-4 opacity-30 text-primary" />
+                      <p className="font-bold text-base text-foreground/60">Nenhum candidato encontrado</p>
+                      <p className="text-sm mt-1 text-foreground/40">Clique em "Novo Candidato" para adicionar</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((candidato) => {
+                  const cpfConfig = CPF_STATUS_CONFIG[candidato.status_cpf as keyof typeof CPF_STATUS_CONFIG] || CPF_STATUS_CONFIG.PENDENTE
+                  const StatusIcon = cpfConfig.icon
+
+                  return (
+                    <tr
+                      key={candidato.id}
+                      className="hover:bg-white transition-all duration-300 group"
+                    >
+                      {/* Nome */}
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600 font-black text-sm shrink-0 border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
+                            {candidato.nome.charAt(0)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-sm text-slate-800 truncate">{candidato.nome}</p>
+                            <p className="text-[10px] text-slate-400 font-medium truncate">{candidato.email || "—"}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Status CPF — sempre mascarado */}
+                      <td className="px-4 py-5">
+                        <div className="flex flex-col gap-1.5 items-center text-center">
+                          <span className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cpfConfig.color} w-fit shadow-sm`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {cpfConfig.label}
+                          </span>
+                          {candidato.cpf_masked && (
+                            <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                              <Shield className="w-2.5 h-2.5" />
+                              <span className="font-mono tracking-widest">{candidato.cpf_masked}</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Contato */}
+                      <td className="px-4 py-5">
+                        <div className="flex flex-col gap-1 items-center text-center">
+                          <p className="text-xs font-semibold text-slate-600 truncate max-w-full">{candidato.telefone || "—"}</p>
+                          {candidato.linkedin && (
+                            <a
+                              href={candidato.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-1 group/link"
+                            >
+                              LinkedIn <ExternalLink className="w-2.5 h-2.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Vagas */}
+                      <td className="px-4 py-5">
+                        <div className="flex flex-wrap gap-1.5 items-center justify-center">
+                          {candidato.vagas.slice(0, 2).map((vc: any) => (
+                            <span
+                              key={vc.vaga.id}
+                              className="text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 truncate max-w-[120px]"
+                              title={vc.vaga.titulo}
+                            >
+                              {vc.vaga.titulo.substring(0, 20)}{vc.vaga.titulo.length > 20 ? "…" : ""}
+                            </span>
+                          ))}
+                          {candidato.vagas.length > 2 && (
+                            <span className="text-[9px] text-slate-400 font-black px-1">+{candidato.vagas.length - 2}</span>
+                          )}
+                          {candidato.vagas.length === 0 && <span className="text-[10px] font-bold text-slate-300 italic">Sem vaga vinculada</span>}
+                        </div>
+                      </td>
+
+                      {/* Ações CPF */}
+                      <td className="px-8 py-5">
+                        <div className="flex items-center justify-end gap-1">
+                          {candidato.status_cpf !== "APROVADO" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={updatingCPF === candidato.id}
+                              onClick={() => handleUpdateCPF(candidato.id, "APROVADO")}
+                              className="h-8 px-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-600 hover:bg-emerald-50 rounded-xl"
+                            >
+                              Aprovar
+                            </Button>
+                          )}
+                          {candidato.status_cpf !== "REPROVADO" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={updatingCPF === candidato.id}
+                              onClick={() => handleUpdateCPF(candidato.id, "REPROVADO")}
+                              className="h-8 px-2.5 text-[10px] font-black uppercase tracking-wider text-rose-600 hover:bg-rose-50 rounded-xl"
+                            >
+                              Reprovar
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-            <UserRound className="w-12 h-12 mb-4 opacity-30 text-primary" />
-            <p className="font-bold text-base text-foreground/60">Nenhum candidato encontrado</p>
-            <p className="text-sm mt-1 text-foreground/40">Clique em "Novo Candidato" para adicionar</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border/30">
-            {filtered.map((candidato) => {
-              const cpfConfig = CPF_STATUS_CONFIG[candidato.status_cpf as keyof typeof CPF_STATUS_CONFIG] || CPF_STATUS_CONFIG.PENDENTE
-              const StatusIcon = cpfConfig.icon
-
-              return (
-                <div
-                  key={candidato.id}
-                  className="grid grid-cols-[2.5fr_1.5fr_1.5fr_2fr_auto] gap-4 items-center px-8 py-5 hover:bg-white transition-all duration-300 group"
-                >
-                  {/* Nome */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600 font-black text-sm shrink-0 border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
-                      {candidato.nome.charAt(0)}
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="font-bold text-sm text-slate-800 truncate">{candidato.nome}</p>
-                      <p className="text-[10px] text-slate-400 font-medium truncate">{candidato.email || "—"}</p>
-                    </div>
-                  </div>
-
-                  {/* Status CPF — sempre mascarado */}
-                  <div className="flex flex-col gap-1.5 items-center text-center">
-                    <span className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cpfConfig.color} w-fit shadow-sm`}>
-                      <StatusIcon className="w-3 h-3" />
-                      {cpfConfig.label}
-                    </span>
-                    {candidato.cpf_masked && (
-                      <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-bold ml-1">
-                        <Shield className="w-2.5 h-2.5" />
-                        <span className="font-mono tracking-widest">{candidato.cpf_masked}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Contato */}
-                  <div className="flex flex-col gap-1 items-center text-center">
-                    <p className="text-xs font-semibold text-slate-600">{candidato.telefone || "—"}</p>
-                    {candidato.linkedin && (
-                      <a
-                        href={candidato.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-1 group/link"
-                      >
-                        LinkedIn <ExternalLink className="w-2.5 h-2.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Vagas */}
-                  <div className="flex flex-wrap gap-1.5 items-center justify-center text-center">
-                    {candidato.vagas.slice(0, 2).map((vc: any) => (
-                      <span
-                        key={vc.vaga.id}
-                        className="text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200"
-                      >
-                        {vc.vaga.titulo.substring(0, 25)}{vc.vaga.titulo.length > 25 ? "…" : ""}
-                      </span>
-                    ))}
-                    {candidato.vagas.length > 2 && (
-                      <span className="text-[9px] text-slate-400 font-black px-1">+{candidato.vagas.length - 2}</span>
-                    )}
-                    {candidato.vagas.length === 0 && <span className="text-[10px] font-bold text-slate-300 italic">Sem vaga vinculada</span>}
-                  </div>
-
-                  {/* Ações CPF */}
-                  <div className="flex items-center justify-end gap-2">
-                    {candidato.status_cpf !== "APROVADO" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingCPF === candidato.id}
-                        onClick={() => handleUpdateCPF(candidato.id, "APROVADO")}
-                        className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-emerald-600 hover:bg-emerald-50 rounded-xl"
-                      >
-                        Aprovar
-                      </Button>
-                    )}
-                    {candidato.status_cpf !== "REPROVADO" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingCPF === candidato.id}
-                        onClick={() => handleUpdateCPF(candidato.id, "REPROVADO")}
-                        className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-rose-600 hover:bg-rose-50 rounded-xl"
-                      >
-                        Reprovar
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </div>
 
       <AddCandidatoDialog

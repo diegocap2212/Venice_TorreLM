@@ -26,37 +26,6 @@ export default async function ColaboradoresPage() {
     console.error("[colaboradores] Prisma query failed", err);
   }
 
-  const sampleColaboradores = [
-    {
-      id: "sample-1",
-      nome: "Ana Souza",
-      cargo: "Analista de RH",
-      status: "Ativo",
-      data_admissao: new Date().toISOString(),
-      data_nascimento: new Date(1990, 5, 10).toISOString(),
-      torre: "Venice",
-      squad: "Growth",
-      email: "ana.souza@example.com",
-      informacoes_internas: "Foco em recrutamento técnico",
-    },
-    {
-      id: "sample-2",
-      nome: "Bruno Lima",
-      cargo: "Talent Partner",
-      status: "Ativo",
-      data_admissao: new Date().toISOString(),
-      data_nascimento: new Date(1988, 10, 3).toISOString(),
-      torre: "Venice",
-      squad: "TA",
-      email: "bruno.lima@example.com",
-      informacoes_internas: "Atende squads de produto",
-    },
-  ];
-
-  if (colaboradores.length === 0) {
-    colaboradores = sampleColaboradores;
-  }
-
   return (
     <div className="p-10 min-h-full bg-[#f8fafc]/50">
       <div className="max-w-[1600px] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

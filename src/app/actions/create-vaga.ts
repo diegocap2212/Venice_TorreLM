@@ -2,8 +2,12 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 export async function createVaga(formData: any) {
+  const session = await auth();
+  if (!session) return { success: false, error: "Não autenticado" };
+
   try {
     // Para o MVP, pegamos o primeiro usuário BP como criador/responsável padrão
     const bp = await prisma.user.findFirst({ where: { role: "BP" } });

@@ -171,7 +171,16 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto">
+        <Table className="min-w-[950px] table-fixed">
+          <colgroup>
+            <col className="w-[24%]" />
+            <col className="w-[18%]" />
+            <col className="w-[14%]" />
+            <col className="w-[22%]" />
+            <col className="w-[12%]" />
+            <col className="w-[10%]" />
+          </colgroup>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent border-slate-200">
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Colaborador</TableHead>
@@ -179,7 +188,7 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Squad</TableHead>
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6">Email</TableHead>
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 py-4 px-6 text-center">Status</TableHead>
-              <TableHead className="w-[80px] py-4 px-6"></TableHead>
+              <TableHead className="py-4 px-6"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -247,7 +256,7 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                 <TableCell className="py-4 px-6">
                   <div className="flex items-center gap-2 text-slate-600">
                     <Mail className="w-3.5 h-3.5 text-slate-300" />
-                    <span className="text-xs font-medium truncate max-w-[150px]">{colab.email || "-"}</span>
+                    <span className="text-xs font-medium truncate block" title={colab.email || "-"}>{colab.email || "-"}</span>
                   </div>
                 </TableCell>
                 <TableCell className="py-4 px-6 text-center">
@@ -311,6 +320,7 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
           )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       <ColaboradorDrawer 
