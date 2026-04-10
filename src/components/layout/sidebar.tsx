@@ -94,8 +94,8 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="w-72 bg-background border-r border-border flex flex-col h-full overflow-hidden transition-all duration-300 relative">
-      <div className="flex-1 overflow-y-auto pt-6 pb-24 px-4 space-y-1">
+    <aside className="w-72 bg-background border-r border-border flex flex-col h-full overflow-hidden transition-all duration-300 relative z-10">
+      <div className="flex-1 overflow-y-auto pt-6 pb-28 px-4 space-y-1 custom-scrollbar scroll-smooth">
 
         {navItems.map(item => {
           const Icon = item.icon
