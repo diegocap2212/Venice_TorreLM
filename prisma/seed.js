@@ -85,6 +85,11 @@ async function main() {
     update: { password: hashedPassword, role: "BP_ADMIN", name: "Lucas Rodrigues" },
     create: { email: "lucas.rodrigues@venicetech.com.br", password: hashedPassword, name: "Lucas Rodrigues", role: "BP_ADMIN" },
   });
+  await prisma.user.upsert({
+    where: { email: "graziele.silva@venicetech.com.br" },
+    update: { password: hashedPassword, role: "BP_ADMIN", name: "Graziele Silva" },
+    create: { email: "graziele.silva@venicetech.com.br", password: hashedPassword, name: "Graziele Silva", role: "BP_ADMIN" },
+  });
 
   const bp = diego;
 
