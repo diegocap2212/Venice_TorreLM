@@ -13,6 +13,7 @@ const AUTHORIZED_EMAILS = [
   "leticia.almeida@venicetech.com.br",
   "lucas.rodrigues@venicetech.com.br",
   "graziele.silva@venicetech.com.br",
+  "lucas.correia@venicetech.com.br",
 ] as const
 // ─────────────────────────────────────────────────────────────────────────────
 
