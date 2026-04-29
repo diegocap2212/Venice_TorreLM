@@ -1,5 +1,6 @@
 import { HomeDashboard } from "@/components/dashboard/home-dashboard";
 import { getCachedDashboardData } from "@/lib/cache-utils";
+import { parseUTCDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -35,8 +36,8 @@ export default async function HomePage() {
 
     // Processamento leve em memória para filtros complexos
     const currentMonth = today.getMonth();
-    const aniversariantes = aniversariantesRaw.filter((c: any) => 
-      c.data_nascimento && new Date(c.data_nascimento).getMonth() === currentMonth
+    const aniversariantes = aniversariantesRaw.filter((c: any) =>
+      c.data_nascimento && parseUTCDate(c.data_nascimento).getMonth() === currentMonth
     );
 
     const recrutamentoStages = ["REQUISICAO", "PREPARACAO", "TRIAGEM", "SHORTLIST", "ENTREVISTA_CLIENTE", "APROVACAO_PROPOSTA"];

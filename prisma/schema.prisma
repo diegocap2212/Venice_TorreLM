@@ -96,6 +96,11 @@ model Colaborador {
   linkedin             String?
   vaga_origem_id       String?
   data_desligamento    DateTime?
+  motivo_desligamento  String?
+  tipo_contrato        String?
+  regime               String?
+  salario              Float?
+  centro_custo         String?
   informacoes_internas String?
   created_at           DateTime           @default(now())
   updated_at           DateTime           @updatedAt
@@ -142,6 +147,8 @@ model CicloPerformance {
   responsavel    String      @default("BP")
   created_at     DateTime    @default(now())
   colaborador    Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
+
+  @@unique([colaborador_id, periodo, tipo])
 }
 
 model AuditLog {

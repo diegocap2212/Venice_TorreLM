@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { auditLog } from "@/lib/audit";
+import { hashCPF, maskCPF, validateCPF } from "@/lib/cpf-utils";
 
 export async function getColaboradores() {
   const session = await auth();
@@ -14,7 +15,7 @@ export async function getColaboradores() {
   });
 }
 
-export async function createColaborador(data: {
+interface ColaboradorInput {
   nome: string;
   cargo: string;
   status: string;
@@ -23,41 +24,55 @@ export async function createColaborador(data: {
   torre?: string;
   squad?: string;
   email?: string;
-  data_desligamento?: Date;
+  cpf?: string;
+  telefone?: string;
+  linkedin?: string;
+  data_desligamento?: Date | null;
+  motivo_desligamento?: string;
+  tipo_contrato?: string;
+  regime?: string;
+  salario?: number | null;
+  centro_custo?: string;
   informacoes_internas?: string;
-}) {
+}
+
+async function processCPF(cpf: string | undefined, excludeId?: string) {
+  if (!cpf || cpf.startsWith("*")) return {};
+  const digits = cpf.replace(/\D/g, "");
+  if (!validateCPF(digits)) return { error: "CPF inválido." };
+  const cpf_hash = hashCPF(digits);
+  const existing = await prisma.colaborador.findUnique({ where: { cpf_hash } });
+  if (existing && existing.id !== excludeId) return { error: "CPF já cadastrado." };
+  return { cpf_hash, cpf_masked: maskCPF(digits) };
+}
+
+export async function createColaborador(data: ColaboradorInput) {
   const session = await auth();
   if (!session) return { error: "Não autenticado" } as any;
 
+  const cpfResult = await processCPF(data.cpf);
+  if ("error" in cpfResult) return cpfResult as any;
+
+  const { cpf, ...rest } = data;
   const colaborador = await prisma.colaborador.create({
-    data,
+    data: { ...rest, ...cpfResult },
   });
   await auditLog("CREATE", "Colaborador", colaborador.id, `Colaborador criado: ${data.nome}`);
   revalidatePath("/");
   return colaborador;
 }
 
-export async function updateColaborador(
-  id: string,
-  data: Partial<{
-    nome: string;
-    cargo: string;
-    status: string;
-    data_admissao: Date;
-    data_nascimento: Date;
-    torre: string;
-    squad: string;
-    email: string;
-    data_desligamento: Date;
-    informacoes_internas: string;
-  }>
-) {
+export async function updateColaborador(id: string, data: Partial<ColaboradorInput>) {
   const session = await auth();
   if (!session) return { error: "Não autenticado" } as any;
 
+  const cpfResult = await processCPF(data.cpf, id);
+  if ("error" in cpfResult) return cpfResult as any;
+
+  const { cpf, ...rest } = data;
   const colaborador = await prisma.colaborador.update({
     where: { id },
-    data,
+    data: { ...rest, ...(Object.keys(cpfResult).length > 0 ? cpfResult : {}) },
   });
   await auditLog("UPDATE", "Colaborador", id, `Colaborador atualizado: ${data.nome || id}`);
   revalidatePath("/");

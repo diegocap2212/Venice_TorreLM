@@ -1,8 +1,9 @@
 "use client";
 
-import { 
-  Users, Cake, UserPlus, UserMinus, TrendingUp, Activity, Briefcase, BarChart2, LayoutDashboard 
+import {
+  Users, Cake, UserPlus, UserMinus, TrendingUp, Activity, Briefcase, BarChart2, LayoutDashboard
 } from "lucide-react";
+import { parseUTCDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import { TutorialPanel } from "@/components/dashboard/tutorial-panel";
 
@@ -273,7 +274,7 @@ export function HomeDashboard({ data }: DashboardProps) {
                     <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xs">{a.nome.charAt(0)}</div>
                     <div className="flex flex-col overflow-hidden">
                       <span className="text-xs font-bold text-slate-800 truncate">{a.nome}</span>
-                      <span className="text-[10px] font-medium text-slate-400">Dia {new Date(a.data_nascimento).getDate()}</span>
+                      <span className="text-[10px] font-medium text-slate-400">Dia {parseUTCDate(a.data_nascimento).getDate()}</span>
                     </div>
                   </div>
                 )) : (

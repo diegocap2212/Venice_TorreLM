@@ -24,14 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  MoreHorizontal, 
-  UserPlus, 
-  Edit2, 
-  Trash2, 
-  Calendar, 
-  Briefcase, 
-  User,
+import {
+  MoreHorizontal,
+  UserPlus,
+  Edit2,
+  Trash2,
+  Calendar,
+  Briefcase,
   Building2,
   Users as UsersIcon,
   Mail,
@@ -42,7 +41,7 @@ import {
   MessageSquare
 } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { parseUTCDate } from "@/lib/utils";
 import { ColaboradorDrawer } from "./colaborador-drawer";
 import { HoraExtraModal } from "./hora-extra-modal";
 import { FollowupModal } from "./followup-modal";
@@ -55,9 +54,16 @@ interface Colaborador {
   status: string;
   data_admissao: Date | string;
   data_nascimento: Date | string;
+  data_desligamento?: Date | string | null;
   torre?: string;
   squad?: string;
   email?: string;
+  cpf_masked?: string;
+  tipo_contrato?: string;
+  regime?: string;
+  salario?: number | null;
+  centro_custo?: string;
+  motivo_desligamento?: string;
   informacoes_internas?: string;
 }
 
@@ -230,7 +236,15 @@ export function ColaboradoresTable({ initialData }: ColaboradoresTableProps) {
                       <span className="text-sm font-bold text-slate-800">{colab.nome}</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <Calendar className="w-3 h-3 text-slate-300" />
-                        <span className="text-[10px] text-slate-400 font-medium">Adm: {format(new Date(colab.data_admissao), "dd/MM/yyyy")}</span>
+                        {colab.data_desligamento ? (
+                          <span className="text-[10px] text-rose-400 font-bold">
+                            Desl: {format(parseUTCDate(colab.data_desligamento), "dd/MM/yyyy")}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            Adm: {format(parseUTCDate(colab.data_admissao), "dd/MM/yyyy")}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

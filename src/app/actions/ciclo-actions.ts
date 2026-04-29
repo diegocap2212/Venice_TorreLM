@@ -34,7 +34,7 @@ export async function criarCicloPeriodo(
       },
     ]
 
-    await prisma.cicloPerformance.createMany({ data: ciclos })
+    await prisma.cicloPerformance.createMany({ data: ciclos, skipDuplicates: true })
     await auditLog("CREATE", "CicloPerformance", colaborador_id, `Ciclo ${periodo} criado`)
     revalidatePath("/performance")
     return { success: true }
