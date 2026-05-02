@@ -58,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role,
+          needsPasswordReset: !user.password_changed_at,
         }
       }
     })

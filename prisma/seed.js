@@ -72,23 +72,23 @@ async function main() {
 
   const diego = await prisma.user.upsert({
     where: { email: "diego.caporusso@venicetech.com.br" },
-    update: { password: hashedPassword, role: "BP_ADMIN", name: "Diego Caporusso" },
-    create: { email: "diego.caporusso@venicetech.com.br", password: hashedPassword, name: "Diego Caporusso", role: "BP_ADMIN" },
+    update: { password: hashedPassword, role: "BP_ADMIN", name: "Diego Caporusso", password_changed_at: null },
+    create: { email: "diego.caporusso@venicetech.com.br", password: hashedPassword, name: "Diego Caporusso", role: "BP_ADMIN", password_changed_at: null },
   });
   await prisma.user.upsert({
     where: { email: "leticia.almeida@venicetech.com.br" },
-    update: { password: hashedPassword, role: "BP_ADMIN", name: "Leticia Almeida" },
-    create: { email: "leticia.almeida@venicetech.com.br", password: hashedPassword, name: "Leticia Almeida", role: "BP_ADMIN" },
+    update: { password: hashedPassword, role: "BP_ADMIN", name: "Leticia Almeida", password_changed_at: null },
+    create: { email: "leticia.almeida@venicetech.com.br", password: hashedPassword, name: "Leticia Almeida", role: "BP_ADMIN", password_changed_at: null },
   });
   await prisma.user.upsert({
     where: { email: "lucas.rodrigues@venicetech.com.br" },
-    update: { password: hashedPassword, role: "BP_ADMIN", name: "Lucas Rodrigues" },
-    create: { email: "lucas.rodrigues@venicetech.com.br", password: hashedPassword, name: "Lucas Rodrigues", role: "BP_ADMIN" },
+    update: { password: hashedPassword, role: "BP_ADMIN", name: "Lucas Rodrigues", password_changed_at: null },
+    create: { email: "lucas.rodrigues@venicetech.com.br", password: hashedPassword, name: "Lucas Rodrigues", role: "BP_ADMIN", password_changed_at: null },
   });
   await prisma.user.upsert({
     where: { email: "graziele.silva@venicetech.com.br" },
-    update: { password: hashedPassword, role: "BP_ADMIN", name: "Graziele Silva" },
-    create: { email: "graziele.silva@venicetech.com.br", password: hashedPassword, name: "Graziele Silva", role: "BP_ADMIN" },
+    update: { password: hashedPassword, role: "BP_ADMIN", name: "Graziele Silva", password_changed_at: null },
+    create: { email: "graziele.silva@venicetech.com.br", password: hashedPassword, name: "Graziele Silva", role: "BP_ADMIN", password_changed_at: null },
   });
 
   const bp = diego;

@@ -7,14 +7,15 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password      String?
-  name          String?
-  role          String   @default("BP_ADMIN")
-  created_at    DateTime @default(now())
-  vagas_criadas Vaga[]   @relation("CriadorVaga")
-  vagas_atuais  Vaga[]   @relation("ResponsavelVaga")
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  password            String?
+  name                String?
+  role                String   @default("BP_ADMIN")
+  password_changed_at DateTime? // null = nunca mudou (forçar reset no login)
+  created_at          DateTime @default(now())
+  vagas_criadas       Vaga[]   @relation("CriadorVaga")
+  vagas_atuais        Vaga[]   @relation("ResponsavelVaga")
 }
 
 model Vaga {
