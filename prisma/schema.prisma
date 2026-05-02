@@ -164,6 +164,55 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model SyncRun {
+  id                 String   @id @default(uuid())
+  status             String   @default("PENDING") // PENDING, RUNNING, SUCCESS, PARTIAL, FAILED
+  started_at         DateTime @default(now())
+  completed_at       DateTime?
+  duration_ms        Int?
+  total_processed    Int      @default(0)
+  total_created      Int      @default(0)
+  total_updated      Int      @default(0)
+  total_skipped      Int      @default(0)
+  error_count        Int      @default(0)
+  error_details      String?  // JSON array of errors
+  idempotency_key    String   @unique // Para garantir idempotência
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  @@index([status])
+  @@index([started_at])
+  @@map("sync_runs")
+}
+
+model SyncLock {
+  id            String   @id @default(uuid())
+  lock_key      String   @unique // "sharepoint_sync"
+  acquired_at   DateTime @default(now())
+  expires_at    DateTime // Timeout para evitar deadlock
+  acquired_by   String   // Instance ID do servidor
+  is_active     Boolean  @default(true)
+  updated_at    DateTime @updatedAt
+
+  @@map("sync_locks")
+}
+
+model SyncMetrics {
+  id                      String   @id @default(uuid())
+  total_runs              Int      @default(0)
+  successful_runs         Int      @default(0)
+  failed_runs             Int      @default(0)
+  total_records_processed Int      @default(0)
+  total_created           Int      @default(0)
+  total_updated           Int      @default(0)
+  total_skipped           Int      @default(0)
+  avg_duration_ms         Int      @default(0)
+  last_sync_at            DateTime?
+  updated_at              DateTime @updatedAt
+
+  @@map("sync_metrics")
+}
+
 model Material {
   id          String   @id @default(uuid())
   titulo      String

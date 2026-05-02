@@ -1,35 +1,85 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-
-const SYNC_RESOURCES = ['SharePointSync', 'Colaborador'];
+import { validateSyncLogsQuery, ValidationError } from '@/lib/sync/api-validators';
+import { checkRateLimit, RateLimitError } from '@/lib/sync/rate-limiter';
+import { logger } from '@/lib/sync/log-sanitizer';
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+
   try {
     // Check authentication
     const session = await auth();
     if (!session) {
+      logger.warn('Unauthorized sync logs access attempt');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
-    const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0);
-    const resource = searchParams.get('resource');
-    const action = searchParams.get('action');
+    const userEmail = session.user?.email || 'unknown';
+
+    // Rate limiting: max 30 log requests per hour per user
+    try {
+      checkRateLimit(`sync:logs:${userEmail}`, {
+        windowMs: 60 * 60 * 1000, // 1 hour
+        maxRequests: 30,
+      });
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        logger.warn('Rate limit exceeded for logs endpoint', {
+          user: userEmail,
+          retryAfter: error.retryAfterSeconds,
+        });
+        return NextResponse.json(
+          {
+            error: 'Too many requests',
+            retryAfter: error.retryAfterSeconds,
+          },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(error.retryAfterSeconds) },
+          }
+        );
+      }
+      throw error;
+    }
+
+    // Validate and parse query parameters
+    let query;
+    try {
+      const params: Record<string, string | string[] | undefined> = {};
+      request.nextUrl.searchParams.forEach((value, key) => {
+        params[key] = value;
+      });
+      query = validateSyncLogsQuery(params);
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        logger.warn('Invalid sync logs query', { errors: error.errors, user: userEmail });
+        return NextResponse.json(
+          {
+            error: 'Invalid query parameters',
+            details: error.errors.map(e => ({
+              path: e.path.join('.'),
+              message: e.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
 
     // Build where clause
     const where: any = {
       user_email: 'sharepoint-sync',
     };
 
-    if (resource && SYNC_RESOURCES.includes(resource)) {
-      where.recurso = resource;
+    if (query.resource) {
+      where.recurso = query.resource;
     }
 
-    if (action) {
-      where.acao = action;
+    if (query.action) {
+      where.acao = query.action;
     }
 
     // Fetch total count
@@ -39,8 +89,17 @@ export async function GET(request: NextRequest) {
     const logs = await prisma.auditLog.findMany({
       where,
       orderBy: { created_at: 'desc' },
-      skip: offset,
-      take: limit,
+      skip: query.offset,
+      take: query.limit,
+    });
+
+    const duration = Date.now() - startTime;
+    logger.info('Sync logs retrieved', {
+      user: userEmail,
+      limit: query.limit,
+      offset: query.offset,
+      total,
+      durationMs: duration,
     });
 
     return NextResponse.json(
@@ -48,10 +107,10 @@ export async function GET(request: NextRequest) {
         status: 'ok',
         timestamp: new Date().toISOString(),
         pagination: {
-          limit,
-          offset,
+          limit: query.limit,
+          offset: query.offset,
           total,
-          hasMore: offset + limit < total,
+          hasMore: query.offset + query.limit < total,
         },
         logs: logs.map(log => ({
           id: log.id,
@@ -61,14 +120,16 @@ export async function GET(request: NextRequest) {
           resourceId: log.recurso_id,
           details: log.detalhes,
         })),
+        durationMs: duration,
       }
     );
   } catch (error) {
-    console.error('[API] Error getting sync logs:', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error getting sync logs', error);
     return NextResponse.json(
       {
         error: 'Internal Server Error',
-        message: error instanceof Error ? error.message : String(error),
+        durationMs: duration,
       },
       { status: 500 }
     );

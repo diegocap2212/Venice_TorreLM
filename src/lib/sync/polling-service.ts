@@ -1,6 +1,8 @@
 import { getSharePointConfig, isSharePointSyncEnabled } from '@/config/sharepoint-config';
 import { runSync } from './sync-worker';
 import { getSyncState } from './sync-state';
+import { withDistributedLock, DistributedLockError } from './distributed-lock';
+import { logger } from './log-sanitizer';
 
 type PollingStateStatus = 'idle' | 'running' | 'stopped';
 
@@ -9,25 +11,12 @@ interface PollingState {
   intervalHandle?: NodeJS.Timeout;
   lastRunTime?: Date;
   nextRunTime?: Date;
+  lockId?: string;
 }
 
 let pollingState: PollingState = {
   status: 'stopped',
 };
-
-let isMutexLocked = false;
-
-async function acquireMutex(): Promise<boolean> {
-  if (isMutexLocked) {
-    return false;
-  }
-  isMutexLocked = true;
-  return true;
-}
-
-function releaseMutex(): void {
-  isMutexLocked = false;
-}
 
 export function isPollingActive(): boolean {
   return pollingState.status === 'running';
@@ -40,44 +29,39 @@ export function getPollingStatus() {
   };
 }
 
-export async function triggerSync(): Promise<void> {
+export async function triggerSync(dryRun: boolean = false): Promise<void> {
   if (!isSharePointSyncEnabled()) {
-    console.log('[Polling] SharePoint sync is disabled');
+    logger.info('[Polling] SharePoint sync is disabled');
     return;
   }
 
-  // Try to acquire mutex to prevent concurrent syncs
-  const acquired = await acquireMutex();
-  if (!acquired) {
-    console.log('[Polling] Sync already in progress, skipping');
-    return;
-  }
-
+  // Use distributed lock to prevent concurrent syncs across instances
   try {
-    pollingState.lastRunTime = new Date();
-    console.log('[Polling] Triggering manual sync');
-    await runSync();
-  } finally {
-    releaseMutex();
+    await withDistributedLock(async () => {
+      pollingState.lastRunTime = new Date();
+      logger.info('[Polling] Triggering sync', { dryRun });
+      await runSync(dryRun);
+    }, 5 * 60 * 1000); // 5 minute timeout
+  } catch (error) {
+    if (error instanceof DistributedLockError) {
+      logger.info('[Polling] Could not acquire lock, another instance is syncing');
+    } else {
+      logger.error('[Polling] Error during sync', error);
+    }
   }
 }
 
 async function pollingSyncLoop(): Promise<void> {
   if (!isSharePointSyncEnabled()) {
-    console.log('[Polling] SharePoint sync is disabled, stopping polling');
+    logger.info('[Polling] SharePoint sync is disabled, stopping polling');
     stopPollingInterval();
-    return;
-  }
-
-  if (isMutexLocked) {
-    console.log('[Polling] Sync already in progress, will try next interval');
     return;
   }
 
   try {
     await triggerSync();
   } catch (error) {
-    console.error('[Polling] Error during sync:', error);
+    logger.error('[Polling] Error during sync loop', error);
   }
 
   // Schedule next run
@@ -89,12 +73,12 @@ async function pollingSyncLoop(): Promise<void> {
 
 export function startPollingInterval(): void {
   if (pollingState.status === 'running') {
-    console.log('[Polling] Polling already active');
+    logger.info('[Polling] Polling already active');
     return;
   }
 
   if (!isSharePointSyncEnabled()) {
-    console.log('[Polling] SharePoint sync is disabled, not starting polling');
+    logger.info('[Polling] SharePoint sync is disabled, not starting polling');
     return;
   }
 
@@ -105,33 +89,33 @@ export function startPollingInterval(): void {
     pollingState.nextRunTime = new Date(Date.now() + config.pollIntervalMs);
 
     // Run first sync immediately
-    console.log('[Polling] Starting polling service...');
+    logger.info('[Polling] Starting polling service');
     triggerSync().catch(err => {
-      console.error('[Polling] Error in initial sync:', err);
+      logger.error('[Polling] Error in initial sync', err);
     });
 
     // Setup recurring interval
     pollingState.intervalHandle = setInterval(
       () => {
         pollingSyncLoop().catch(err => {
-          console.error('[Polling] Error in polling loop:', err);
+          logger.error('[Polling] Error in polling loop', err);
         });
       },
       config.pollIntervalMs
     );
 
-    console.log(
-      `[Polling] Polling started with ${config.pollIntervalMs}ms interval`
-    );
+    logger.info('[Polling] Polling started', {
+      intervalMs: config.pollIntervalMs,
+    });
   } catch (error) {
-    console.error('[Polling] Failed to start polling:', error);
+    logger.error('[Polling] Failed to start polling', error);
     pollingState.status = 'stopped';
   }
 }
 
 export function stopPollingInterval(): void {
   if (pollingState.status === 'stopped') {
-    console.log('[Polling] Polling is not running');
+    logger.info('[Polling] Polling is not running');
     return;
   }
 
@@ -141,7 +125,7 @@ export function stopPollingInterval(): void {
   }
 
   pollingState.status = 'stopped';
-  console.log('[Polling] Polling stopped');
+  logger.info('[Polling] Polling stopped');
 }
 
 export function restartPollingInterval(): void {
@@ -152,7 +136,7 @@ export function restartPollingInterval(): void {
 // Graceful shutdown handler
 export function setupGracefulShutdown(): void {
   const shutdown = () => {
-    console.log('[Polling] Shutting down polling service');
+    logger.info('[Polling] Shutting down polling service');
     stopPollingInterval();
     process.exit(0);
   };
@@ -167,5 +151,4 @@ export function resetPollingState(): void {
   pollingState = {
     status: 'stopped',
   };
-  isMutexLocked = false;
 }
