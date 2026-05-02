@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { RoleProvider } from "@/components/providers/role-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { SyncInitializer } from "@/components/sync-initializer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <AuthProvider>
           <RoleProvider>
+            <SyncInitializer />
             <div className="h-screen w-screen overflow-hidden">
               {children}
             </div>
