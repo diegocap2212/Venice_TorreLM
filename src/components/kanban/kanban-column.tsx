@@ -16,11 +16,11 @@ export function KanbanColumn({ id, title, color, vagas, onVagaClick }: KanbanCol
   });
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
-      className={`flex flex-col w-80 rounded-2xl border transition-all shrink-0 overflow-hidden min-h-[500px] ${
-        isOver 
-          ? "bg-slate-100 border-primary/20 shadow-inner" 
+      className={`flex flex-col w-64 rounded-2xl border transition-all shrink-0 overflow-hidden min-h-[500px] ${
+        isOver
+          ? "bg-slate-100 border-primary/20 shadow-inner"
           : "bg-slate-50/50 border-slate-200/50"
       }`}
     >

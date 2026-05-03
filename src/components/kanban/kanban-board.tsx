@@ -154,7 +154,7 @@ export function KanbanBoard({ initialVagas, initialTab = "RECRUTAMENTO", hideHea
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-1 overflow-x-auto gap-6 pb-8 scrollbar-thin scrollbar-thumb-slate-200 select-none">
+        <div className="flex flex-1 overflow-x-auto gap-4 pb-8 scrollbar-thin scrollbar-thumb-slate-200 select-none">
           {colunasAtuais.map((col) => {
             const columnVagas = vagas.filter((v) => v.etapa_atual === col.id);
             return (

@@ -26,8 +26,6 @@ export function Topbar() {
 
   const getTitle = () => {
     if (currentView === "home") return "VENICE | VISÃO GERAL";
-    if (currentView === "ways-of-working") return "VENICE | WAYS OF WORKING";
-    if (currentView === "cone-locavia") return "VENICE | CONE LOCAVIA";
     if (currentView === "colaboradores") return "VENICE | COLABORADORES";
     if (currentView === "reports") return "VENICE | REPORTS E MATERIAIS";
     if (currentView === "pipeline") {
@@ -38,8 +36,6 @@ export function Topbar() {
 
   const getSubtitle = () => {
     if (currentView === "home") return "Centro de Controle e Indicadores da Torre";
-    if (currentView === "ways-of-working") return "Guia de Processos e Cultura Venice";
-    if (currentView === "cone-locavia") return "Dashboard de Performance e Métricas";
     if (currentView === "colaboradores") return "Gestão de Pessoas e Times";
     if (currentView === "reports") return "Materiais, Atas e Documentos";
     if (currentView === "pipeline") {

@@ -253,6 +253,97 @@ Funções
 
 ---
 
+## 🗄️ Schema Design - Bizneo Integration (DESIGN APPROVED)
+
+### Motivation
+Bizneo oferece 2 funcionalidades: **Filtrar por tags** + **Gerar CV links**.  
+Para replicar isso em Venice, precisamos armazenar referências Bizneo + tags em candidatos.
+
+### Schema Changes (PENDING IMPLEMENTATION)
+
+**Candidato model enhancement:**
+```prisma
+model Candidato {
+  // ... existing fields ...
+  
+  // NEW: Bizneo Integration (3 fields)
+  bizneo_id       String?        // ID do candidato no Bizneo (para linking)
+  bizneo_cv_url   String?        // CV link compartilhável do Bizneo
+  tags            String[]       // JSON array: ["venice", "frontend", "senioridade-jr"]
+  
+  // ... relationships remain same ...
+}
+```
+
+### Prisma Migration (PENDING)
+```sql
+-- Executar após aprovação:
+ALTER TABLE "Candidato" 
+ADD COLUMN "bizneo_id" TEXT,
+ADD COLUMN "bizneo_cv_url" TEXT,
+ADD COLUMN "tags" JSONB DEFAULT '[]';
+
+CREATE UNIQUE INDEX "Candidato_bizneo_id_key" ON "Candidato"("bizneo_id");
+```
+
+### API Changes (PENDING)
+```typescript
+// src/app/actions/candidato-actions.ts
+
+// 1. Filter by tag
+export async function getCandidatosByTag(tag: string): Promise<Candidato[]>
+
+// 2. Create with Bizneo reference
+export async function createCandidatoFromBizneo(input: {
+  bizneo_id: string
+  nome: string
+  email: string
+  bizneo_cv_url: string
+  tags: string[]
+  vaga_id?: string
+}): Promise<Candidato>
+
+// 3. Add/remove tags
+export async function addTagsToCandidato(candidato_id: string, tags: string[]): Promise<void>
+```
+
+### UI Changes (PENDING)
+```typescript
+// Component: candidatos-list.tsx - Add column:
+<TableCell>
+  {candidato.tags?.map(tag => (
+    <Badge key={tag} variant="outline">{tag}</Badge>
+  ))}
+</TableCell>
+
+// Add filter:
+<Select>
+  <SelectTrigger>Filter by tag</SelectTrigger>
+  <SelectContent>
+    {allTags.map(tag => (
+      <SelectItem value={tag}>{tag}</SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+
+// Add CV link display (separate from linkedin):
+{candidato.bizneo_cv_url && (
+  <a href={candidato.bizneo_cv_url} target="_blank">
+    <ExternalLink className="w-4 h-4" />
+    CV Bizneo
+  </a>
+)}
+```
+
+### Testing Strategy (PENDING)
+- [ ] Create candidato with tags
+- [ ] Filter by tag works
+- [ ] CV link displays correctly
+- [ ] Bizneo ID prevents duplicates (unique index)
+- [ ] Tags persist on update
+
+---
+
 ## 🚀 Próximas Etapas
 
 **1. Você concorda com esse fluxo?**

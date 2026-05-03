@@ -79,18 +79,6 @@ export function Sidebar() {
       icon: ShieldCheck,
       href: "/reports",
     },
-    {
-      id: "ways-of-working",
-      label: "Ways of Working",
-      icon: Target,
-      href: "/ways-of-working",
-    },
-    {
-      id: "cone-locavia",
-      label: "Cone Locavia",
-      icon: ClipboardList,
-      href: "/cone-locavia",
-    },
   ]
 
   return (
