@@ -1,5 +1,4 @@
 import { DemandaBoard } from "@/components/demandas/demanda-board";
-import { CreateDemandaDialog } from "@/components/demandas/create-demanda-dialog";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -20,16 +19,13 @@ export default async function DemandasPage() {
   return (
     <div className="p-10 min-h-full bg-[#f8fafc]/50">
       <div className="max-w-[1600px] mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-2xl font-black tracking-tight text-slate-800 uppercase">
-              Gestão de Demandas
-            </h2>
-            <p className="text-sm text-slate-500 font-medium tracking-wide">
-              Projetos e iniciativas da Torre LM.
-            </p>
-          </div>
-          <CreateDemandaDialog />
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-black tracking-tight text-slate-800 uppercase">
+            Gestão de Demandas
+          </h2>
+          <p className="text-sm text-slate-500 font-medium tracking-wide">
+            Projetos e iniciativas da Torre LM.
+          </p>
         </div>
 
         <div className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">

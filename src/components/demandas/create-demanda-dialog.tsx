@@ -20,12 +20,14 @@ import {
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { createDemanda } from "@/app/actions/demanda-actions";
-import { useRouter } from "next/navigation";
 
-export function CreateDemandaDialog() {
+interface CreateDemandaDialogProps {
+  onCreated?: (demanda: any) => void;
+}
+
+export function CreateDemandaDialog({ onCreated }: CreateDemandaDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,9 +36,9 @@ export function CreateDemandaDialog() {
     const data = Object.fromEntries(formData.entries()) as { titulo: string; tipo?: string; prioridade?: string; squad?: string; descricao?: string; data_prevista?: string; tags?: string };
 
     const res = await createDemanda(data);
-    if (res.success) {
+    if (res.success && res.demanda) {
       setOpen(false);
-      router.refresh();
+      onCreated?.(res.demanda);
     }
     setLoading(false);
   }

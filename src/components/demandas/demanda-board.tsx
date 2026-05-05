@@ -20,8 +20,8 @@ import {
 import { DemandaColumn } from "./demanda-column";
 import { DemandaCard } from "./demanda-card";
 import { DemandaDrawer } from "./demanda-drawer";
+import { CreateDemandaDialog } from "./create-demanda-dialog";
 import { updateDemandaEtapa } from "@/app/actions/demanda-actions";
-import { useRouter } from "next/navigation";
 
 const COLUNAS = [
   { id: "BACKLOG", title: "Backlog", color: "bg-slate-400" },
@@ -39,7 +39,6 @@ export function DemandaBoard({ initialDemandas }: DemandaBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedDemanda, setSelectedDemanda] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     setDemandas(initialDemandas);
@@ -76,7 +75,6 @@ export function DemandaBoard({ initialDemandas }: DemandaBoardProps) {
 
       try {
         await updateDemandaEtapa(demandaId, targetEtapa);
-        router.refresh();
       } catch {
         setDemandas(initialDemandas);
       }
@@ -90,7 +88,10 @@ export function DemandaBoard({ initialDemandas }: DemandaBoardProps) {
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0 gap-4">
+      <div className="flex justify-end">
+        <CreateDemandaDialog onCreated={(d) => setDemandas((prev) => [d, ...prev])} />
+      </div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}

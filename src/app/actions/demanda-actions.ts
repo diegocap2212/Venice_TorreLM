@@ -28,7 +28,7 @@ export async function createDemanda(data: {
       ? data.tags.split(",").map((t) => t.trim()).filter(Boolean)
       : [];
 
-    await prisma.demanda.create({
+    const demanda = await prisma.demanda.create({
       data: {
         titulo: data.titulo,
         tipo: data.tipo || "INICIATIVA",
@@ -40,10 +40,11 @@ export async function createDemanda(data: {
         criado_por_id: session.user.id,
         responsavel_id: session.user.id,
       },
+      include: { responsavel: true, criado_por: true },
     });
 
     revalidatePath("/demandas");
-    return { success: true };
+    return { success: true, demanda };
   } catch (error) {
     console.error("[createDemanda]", error);
     return { success: false, error: "Erro ao criar demanda" };
