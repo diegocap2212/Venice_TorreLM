@@ -56,12 +56,6 @@ export function Sidebar() {
       ]
     },
     {
-      id: "demandas",
-      label: "Demandas",
-      icon: Kanban,
-      href: "/demandas",
-    },
-    {
       id: "pos-admissao",
       label: "Pós-Admissão",
       icon: ClipboardCheck,
@@ -78,6 +72,12 @@ export function Sidebar() {
       label: "Performance",
       icon: TrendingUp,
       href: "/performance",
+    },
+    {
+      id: "demandas",
+      label: "Demandas",
+      icon: Kanban,
+      href: "/demandas",
     },
     {
       id: "reports",
