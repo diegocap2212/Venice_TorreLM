@@ -15,7 +15,10 @@ export default async function PipelinePage({
 
   try {
     vagas = await prisma.vaga.findMany({
-      include: { responsavel: true },
+      include: {
+        responsavel: true,
+        _count: { select: { candidatos: true } },
+      },
       orderBy: { data_etapa_atual: "desc" },
     }) || [];
   } catch (err) {

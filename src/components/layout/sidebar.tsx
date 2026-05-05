@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard, Users, Briefcase, ChevronDown, UserRound,
-  ClipboardCheck, TrendingUp, ShieldCheck, ClipboardList, LogOut, Target
+  ClipboardCheck, TrendingUp, ShieldCheck, ClipboardList, LogOut, Target, Kanban
 } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -54,6 +54,12 @@ export function Sidebar() {
         { label: "Recrutamento", href: "/pipeline?tab=recrutamento", color: "bg-emerald-500" },
         { label: "Onboarding", href: "/pipeline?tab=onboarding", color: "bg-orange-500" },
       ]
+    },
+    {
+      id: "demandas",
+      label: "Demandas",
+      icon: Kanban,
+      href: "/demandas",
     },
     {
       id: "pos-admissao",

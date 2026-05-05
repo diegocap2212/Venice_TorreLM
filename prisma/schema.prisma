@@ -14,8 +14,10 @@ model User {
   role                String   @default("BP_ADMIN")
   password_changed_at DateTime? // null = nunca mudou (forçar reset no login)
   created_at          DateTime @default(now())
-  vagas_criadas       Vaga[]   @relation("CriadorVaga")
-  vagas_atuais        Vaga[]   @relation("ResponsavelVaga")
+  vagas_criadas        Vaga[]    @relation("CriadorVaga")
+  vagas_atuais         Vaga[]    @relation("ResponsavelVaga")
+  demandas_responsavel Demanda[] @relation("DemandaResponsavel")
+  demandas_criadas     Demanda[] @relation("DemandaCriador")
 }
 
 model Vaga {
@@ -288,4 +290,24 @@ model WowSquadOverride {
 
   @@unique([sm, squad, week, field])
   @@map("wow_squad_overrides")
+}
+
+model Demanda {
+  id              String    @id @default(uuid())
+  titulo          String
+  descricao       String?
+  tipo            String    @default("INICIATIVA")
+  etapa           String    @default("BACKLOG")
+  prioridade      String    @default("NORMAL")
+  squad           String?
+  tags            String[]  @default([])
+  responsavel_id  String?
+  responsavel     User?     @relation("DemandaResponsavel", fields: [responsavel_id], references: [id])
+  criado_por_id   String
+  criado_por      User      @relation("DemandaCriador", fields: [criado_por_id], references: [id])
+  data_criacao    DateTime  @default(now())
+  data_prevista   DateTime?
+  bloqueada       Boolean   @default(false)
+  motivo_bloqueio String?
+  updated_at      DateTime  @updatedAt
 }
