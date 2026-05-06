@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DemandasPage() {
   let demandas: any[] = [];
+  let dbError: string | null = null;
 
   try {
     demandas = await prisma.demanda.findMany({
@@ -13,7 +14,7 @@ export default async function DemandasPage() {
     });
   } catch (err) {
     console.error("[demandas] Prisma query failed", err);
-    demandas = [];
+    dbError = err instanceof Error ? err.message : "Erro desconhecido";
   }
 
   return (
@@ -28,15 +29,23 @@ export default async function DemandasPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-              Quadro de Demandas
-            </h3>
+        {dbError ? (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700 text-sm font-medium">
+            Erro ao conectar ao banco de dados: <span className="font-mono">{dbError}</span>
+            <br />
+            <span className="text-red-500 text-xs">Verifique os logs do servidor para mais detalhes.</span>
           </div>
-          <DemandaBoard initialDemandas={demandas} />
-        </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-2 h-8 bg-primary rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                Quadro de Demandas
+              </h3>
+            </div>
+            <DemandaBoard initialDemandas={demandas} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -21,7 +21,10 @@ export async function createDemanda(data: {
   tags?: string;
 }) {
   const session = await auth();
-  if (!session?.user?.id) return { success: false, error: "Não autenticado" };
+  if (!session?.user?.email) return { success: false, error: "Não autenticado" };
+
+  const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+  if (!dbUser) return { success: false, error: "Usuário não encontrado no sistema" };
 
   try {
     const tags = data.tags
@@ -37,8 +40,8 @@ export async function createDemanda(data: {
         descricao: data.descricao || null,
         data_prevista: data.data_prevista ? new Date(data.data_prevista) : null,
         tags,
-        criado_por_id: session.user.id,
-        responsavel_id: session.user.id,
+        criado_por_id: dbUser.id,
+        responsavel_id: dbUser.id,
       },
       include: { responsavel: true, criado_por: true },
     });

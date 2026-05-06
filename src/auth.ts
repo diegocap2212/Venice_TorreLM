@@ -1,7 +1,6 @@
 import NextAuth from "next-auth"
 import MicrosoftEntraId from "next-auth/providers/microsoft-entra-id"
 import { authConfig } from "./auth.config"
-import { prisma } from "@/lib/prisma"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -18,20 +17,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return user.email?.endsWith("@venicetech.com.br") ?? false
     },
     async jwt({ token, user }) {
-      if (user?.email) {
-        const dbUser = await prisma.user.upsert({
-          where: { email: user.email },
-          update: { name: user.name ?? undefined },
-          create: { email: user.email, name: user.name ?? "" },
-          select: { id: true },
-        })
-        token.id = dbUser.id
+      if (user) {
         token.role = "BP_ADMIN"
       }
       return token
     },
     async session({ session, token }) {
-      session.user.id = token.id
       session.user.role = token.role
       return session
     },
