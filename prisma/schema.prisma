@@ -292,6 +292,23 @@ model WowSquadOverride {
   @@map("wow_squad_overrides")
 }
 
+model SquadMetadata {
+  id          String   @id @default(uuid())
+  squad       String   @unique
+  torre       String?
+  objetivo    String?
+  ponto_focal String?
+  stack       String?
+  cerimonias  String?
+  acessos     String?
+  saude       String   @default("BOA")
+  notas_sdm   String?
+  updated_at  DateTime @updatedAt
+  created_at  DateTime @default(now())
+
+  @@map("squad_metadata")
+}
+
 model Demanda {
   id              String    @id @default(uuid())
   titulo          String

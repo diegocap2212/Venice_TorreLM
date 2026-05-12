@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard, Users, Briefcase, ChevronDown, UserRound,
-  ClipboardCheck, TrendingUp, ShieldCheck, ClipboardList, LogOut, Target, Kanban
+  ClipboardCheck, TrendingUp, ShieldCheck, ClipboardList, LogOut, Target, Kanban, Map
 } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -78,6 +78,12 @@ export function Sidebar() {
       label: "Demandas",
       icon: Kanban,
       href: "/demandas",
+    },
+    {
+      id: "mapa-squads",
+      label: "Mapa de Squads",
+      icon: Map,
+      href: "/mapa-squads",
     },
     {
       id: "reports",
